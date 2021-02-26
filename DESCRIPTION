@@ -1,0 +1,18 @@
+Package: causal.confseq
+Type: Package
+Title: Confidence sequences for the average treatment effect
+Version: 0.1.0
+Author: Ian Waudby-Smith
+Maintainer: Ian Waudby-Smith <ianws@cmu.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+Depends:
+  R (>= 3.3.0),
+  SuperLearner
+Imports:
+  stats,
+  parallel
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
