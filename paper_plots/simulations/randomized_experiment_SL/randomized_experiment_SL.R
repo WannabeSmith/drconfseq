@@ -22,13 +22,6 @@ p <- apply(X, MARGIN=1, FUN=prop_score_true)
 treatment <- rbinom(n, 1, p)
 y <- reg_observed + treatment*ATE + rt(n, df=7)
 
-drate_variables_oracle <-
-  pseudo_outcome_abstract(y = y, reg_1 = reg_observed,
-                          reg_0 = reg_observed, propensity_score = p,
-                          treatment = treatment)
-
-
-
 # Get SuperLearner prediction function for $\mu^1$.
 # Using default ML algorithm choices
 sl_reg_1 <- get_SL_fn()

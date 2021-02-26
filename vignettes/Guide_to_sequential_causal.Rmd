@@ -1,0 +1,13 @@
+---
+title: "A guide to `sequential.causal`"
+author: "Ian Waudby-Smith"
+date: "25/02/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

@@ -98,7 +98,6 @@ pseudo_outcome_sequential <- function(y, X, treatment,
     times = length(y)
   }
 
-
   if(cross_fit)
   {
     train_indices <- list(train_idx, eval_idx)
