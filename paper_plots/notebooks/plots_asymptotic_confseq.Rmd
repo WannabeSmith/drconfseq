@@ -1,0 +1,113 @@
+---
+title: "Plots for asymptotic confidence sequences"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  html_notebook: default
+---
+
+# Estimating the mean of binary random variables
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(causal.confseq)
+library(gridExtra)
+```
+
+### Confidence sequence versus confidence interval
+
+```{r, echo=FALSE, cache=TRUE}
+N <- 10000
+alpha <- 0.05
+start_time <- 30
+p <- 0.5
+x <- rbinom(n=N, size = 1, prob = p)
+t <- seq(1, N)[start_time:N]
+
+# Conjugate mixture asymptotic confidence sequence
+acs_cm <- asymptotic_confseq(x = x, t_opt=10000, return_all_times = TRUE)
+# Naive asymptotic confidence interval
+aci <- naive_confidence_intervals(x, alpha=alpha, return_all_times = TRUE)
+l_cm <- acs_cm$l[start_time:N]
+u_cm <- acs_cm$u[start_time:N]
+
+l_naive <- aci$l[start_time:N]
+u_naive <- aci$u[start_time:N]
+
+plot_df <- data.frame(t = rep(t, 4), 
+                      bound = c(l_cm, u_cm, l_naive, u_naive),
+                      upper_lower = c(rep('l', length(l_cm)),
+                                      rep('u', length(u_cm)),
+                                      rep('l', length(l_naive)),
+                                      rep('u', length(u_naive))),
+                      type = c(rep('CS [Thm 3.1]', 2*length(l_cm)),
+                               rep('CI [CLT]', 2*length(l_naive))))
+
+plt_cs <- 
+  ggplot() + 
+  geom_line(aes(x=t, y=bound, color=type, linetype=type), 
+            data=plot_df[plot_df$upper_lower=='l',]) +
+  geom_line(aes(x=t, y=bound, color=type, linetype=type), 
+            data=plot_df[plot_df$upper_lower=='u',]) +
+  geom_hline(yintercept=0.5, linetype='dashed', color='gray') +
+  ylab('Confidence sets for the\naverage treatment effect') + xlab('Time') +
+  scale_x_log10() +
+  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 3.1]'), values=c(3, 1)) +
+  theme(legend.position='none')
+plt_cs
+
+# Widths
+
+ggplot() + geom_line(aes(x = t, y = (u_naive - l_naive)/(u_cm - l_cm)))
+
+# Miscoverage
+
+repeats <- 10
+
+confseq_miscoverage_list <- lapply(1:repeats, function(i){
+  x <- rbinom(n=N, size = 1, prob = p)
+  acs_cm <- asymptotic_confseq(x = x, t_opt = 1000, return_all_times = TRUE)
+  l <- acs_cm$l[start_time:N]
+  u <- acs_cm$u[start_time:N]
+  miscoverage <- cummax(l > p | u < p)
+  stopifnot(all(!is.na(miscoverage)))
+  return(miscoverage)
+})
+
+naive_miscoverage_list <- lapply(1:repeats, function(i){
+  x <- rbinom(n=N, size = 1, prob = p)
+  aci <- naive_confidence_intervals(x, alpha=alpha, return_all_times = TRUE)
+  l <- aci$l[start_time:N]
+  u <- aci$u[start_time:N]
+  miscoverage <- cummax(l > p | u < p)
+  stopifnot(all(!is.na(miscoverage)))
+  return(miscoverage)
+})
+
+confseq_miscoverage <- colMeans(do.call(rbind, confseq_miscoverage_list))
+
+naive_miscoverage <- colMeans(do.call(rbind, naive_miscoverage_list))
+
+plot_df <- data.frame(t = rep(t, 2),
+                      miscoverage = c(confseq_miscoverage,
+                                      naive_miscoverage),
+                      type = c(rep('CS [Thm 3.1]', 
+                                   length(confseq_miscoverage)),
+                               rep('CI [CLT]',
+                                   length(naive_miscoverage))))
+
+plt_miscoverage <- ggplot(plot_df) + 
+  geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
+  geom_hline(aes(yintercept=alpha)) + 
+  ylab('Cumulative miscoverage rate') + xlab('Time') +
+  scale_x_log10() +
+  theme(legend.position=c(0.75, 0.3)) +
+  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 3.1]'), values=c(3, 1))
+plt_miscoverage
+
+plt_both <- grid.arrange(plt_cs, plt_miscoverage, nrow=1)
+
+ggsave('miscoverage.pdf', plot = plt_both, width=10, height=4)
+```
+
