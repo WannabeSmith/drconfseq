@@ -102,7 +102,7 @@ confseq_ate_unadjusted <- function(y, treatment,
   df <- data.frame(l = cs$l, u = cs$u,
                    row.names = 1:length(y))
 
-  if(!is.na(times))
+  if(all(!is.na(times)))
   {
     df <- df[times,]
   }

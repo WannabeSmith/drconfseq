@@ -1,7 +1,7 @@
 # This file contains functions related to causal inference,
 # double robustness, double machine learning, targeted learning, etc.
 
-#' Doubly-robust variables for binary treatment given nuisance function estimates.
+#' Doubly-robust pseudo-outcome for binary treatment given nuisance function estimates.
 #'
 #' Function signature: (real, real, real, real, int) -> real
 #' @param y The measured outcome (a real vector).
@@ -92,7 +92,7 @@ pseudo_outcome_sequential <- function(y, X, treatment,
 
   X <- data.frame(X)
 
-  if (is.null(times))
+  if (any(is.null(times)))
   {
     warning('"times" was left as null. Computing only at time n.')
     times = length(y)
