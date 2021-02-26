@@ -15,7 +15,8 @@ confseq_ate(
   train_idx = NULL,
   alpha = 0.05,
   times = NULL,
-  n_cores = 1
+  n_cores = 1,
+  cross_fit = TRUE
 )
 }
 \arguments{

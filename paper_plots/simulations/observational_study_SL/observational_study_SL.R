@@ -1,4 +1,4 @@
-library(causal.confseq)
+library(sequential.causal)
 library(parallel)
 library(pracma)
 
@@ -113,7 +113,7 @@ confseq_unadj <- confseq_ate_unadjusted(y = y, treatment = treatment,
 
 
 
-r_data_dir <- "~/Documents/GitProjects/AsymptoticConfidenceSequences/Code/R/simulations/observational_study_SL/"
+r_data_dir <- "./"
 save(confseq_SL, confseq_glm, confseq_unadj, times, ATE,
      file=paste(r_data_dir, 'observational_study_SL.RData', sep=""))
 

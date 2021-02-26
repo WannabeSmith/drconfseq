@@ -1,6 +1,6 @@
-library(causal.confseq)
+library(sequential.causal)
 library(parallel)
-start_times <- c(2, 5, 10, 15)
+start_times <- c(3, 5, 10, 15)
 n <- 10000
 num_repeats <- 10000
 n_cores <- parallel::detectCores()
@@ -32,6 +32,6 @@ for(start_time in start_times)
 
 getwd()
 save(miscoverage_rates,
-     file = "~/Documents/GitProjects/AsymptoticConfidenceSequences/Code/R/simulations/start_time/miscoverage_rates.RData")
+     file = "./miscoverage_rates.RData")
 save(alpha,
-     file = "~/Documents/GitProjects/AsymptoticConfidenceSequences/Code/R/simulations/start_time/alpha.RData")
+     file = "./alpha.RData")

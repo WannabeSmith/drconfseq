@@ -13,7 +13,8 @@ pseudo_outcome_sequential(
   propensity_score_fn,
   train_idx = NULL,
   times = NULL,
-  n_cores = 1
+  n_cores = 1,
+  cross_fit = FALSE
 )
 }
 \arguments{

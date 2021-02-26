@@ -1,4 +1,4 @@
-library(causal.confseq)
+library(sequential.causal)
 library(parallel)
 n <- 10000
 start_time <- 30
@@ -40,7 +40,7 @@ y <- data_generator_fn()
 acs <- acs_fn(y)
 clt <- clt_fn(y)
 
-r_data_dir <- "~/Documents/GitProjects/AsymptoticConfidenceSequences/Code/R/simulations/cs_vs_ci/"
+r_data_dir <- "./"
 
 save(acs_miscoverage, clt_miscoverage,
      acs, clt, start_time, p_1, p_2, n,
