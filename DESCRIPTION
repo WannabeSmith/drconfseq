@@ -1,4 +1,4 @@
-Package: causal.confseq
+Package: sequential.causal
 Type: Package
 Title: Confidence sequences for the average treatment effect
 Version: 0.1.0
