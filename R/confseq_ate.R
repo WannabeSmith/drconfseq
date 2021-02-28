@@ -44,9 +44,9 @@ require(parallel)
 #' @return Data frame containing the lower and upper confidence sequences.
 #' @export
 confseq_ate <- function(y, X, treatment,
-                        regression_fn_1,
-                        regression_fn_0 = NULL,
-                        propensity_score_fn,
+                        regression_fn_1 = get_SL_fn(),
+                        regression_fn_0 = get_SL_fn(),
+                        propensity_score_fn = get_SL_fn(family = binomial),
                         t_opt,
                         train_idx = NULL,
                         alpha = 0.05,

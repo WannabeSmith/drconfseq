@@ -1,6 +1,6 @@
 library(sequential.causal)
 library(parallel)
-n <- 10000
+n <- 100000
 start_time <- 30
 alpha <- 0.05
 p_1 <- 0.8
@@ -28,13 +28,13 @@ acs_miscoverage <- get_miscoverage_rate(data_generator_fn = data_generator_fn,
                                         times = start_time:n,
                                         num_repeats = 1000,
                                         mu = p_1-p_2,
-                                        n_cores = 1)
+                                        n_cores = parallel::detectCores())
 clt_miscoverage <- get_miscoverage_rate(data_generator_fn = data_generator_fn,
                                         conf_set_fn = clt_fn,
                                         times = start_time:n,
                                         num_repeats = 1000,
                                         mu = p_1-p_2,
-                                        n_cores = 1)
+                                        n_cores = parallel::detectCores())
 
 y <- data_generator_fn()
 acs <- acs_fn(y)

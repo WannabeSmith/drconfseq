@@ -71,10 +71,10 @@ plt
 ```{r}
 library(pracma)
 alpha <- 0.05
-t_opts <- c(10, 100, 1000, 10000)
-shape_points <- 10^(0:5)
-t <- c(shape_points, logseq(1, 1000000, n = 10000))
-
+t_opts <- c(100, 500, 1000, 5000)
+#t <- c(shape_points, logseq(1, 1000000, n = 10000))
+t <- 100:10000
+shape_points <- seq(min(t), max(t), length.out = 6)
 
 plt_data_lines <- t_opts %>% map(function(t_opt){
   acs <- std_conjmix_margin(t = t,
@@ -95,11 +95,11 @@ plt <-
              aes(x = Time, y = Ratio, color = t_opt, shape = t_opt), size=2) + 
   guides(color = guide_legend(title = "t optimized"),
          shape = guide_legend(title = "t optimized")) +
-  scale_x_log10(breaks = scales::trans_breaks("log10",
-                                              function(x) 10^x),
-                labels = scales::trans_format("log10",
-                                              scales::math_format(10^.x))) +
-  annotation_logticks(colour = "grey", side = "b") + 
+  # scale_x_log10(breaks = scales::trans_breaks("log10",
+  #                                             function(x) 10^x),
+  #               labels = scales::trans_format("log10",
+  #                                             scales::math_format(10^.x))) +
+  #annotation_logticks(colour = "grey", side = "b") + 
   ylab("Ratio of confidence interval widths\nto confidence sequence widths") +
   theme_fn() + 
   theme(text = element_text(family="serif"), legend.position=c(0.75, 0.3)) +
@@ -153,13 +153,14 @@ plt_cs <-
 plt_cs
 # Miscoverage
 
-plot_df <- data.frame(t = rep(start_time:n, 2),
-                      miscoverage = c(acs_miscoverage,
-                                      clt_miscoverage),
+t = unique(round(logseq(x1 = start_time, x2 = n, n = 10000)))
+plot_df <- data.frame(t = rep(t, 2),
+                      miscoverage = c(acs_miscoverage[t - start_time + 1],
+                                      clt_miscoverage[t - start_time + 1]),
                       type = c(rep('CS [Thm 1]', 
-                                   length(acs_miscoverage)),
+                                   length(t)),
                                rep('CI [CLT]',
-                                   length(clt_miscoverage))))
+                                   length(t))))
 
 plt_miscoverage <- ggplot(plot_df) + 
   geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +

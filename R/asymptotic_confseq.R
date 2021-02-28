@@ -123,3 +123,64 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
               'u' = mu_hat_t + margin))
 }
 
+#' Plot ratio of confidence sequence to confidence interval widths
+#'
+#' @param t_opts The times for which to optimize the confidence sequence
+#'               (vector of positive integers)
+#' @param t The times to plot the confidence sequence
+#'          (vector of positive integers)
+#' @param alpha The significance level, e.g. set alpha=0.05 for 95% coverage
+#'              (real number between 0 and 1)
+#' @param log_scale Should the plot be returned on a log-scale? (boolean)
+#'
+#' @return A ggplot2 plot object
+#' @export
+plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
+{
+  alpha <- 0.05
+  if(log_scale)
+  {
+    shape_points <- unique(round(logseq(min(t), max(t), n = 6)))
+  } else
+  {
+    shape_points <- unique(round(seq(min(t), max(t), length.out = 6)))
+  }
+
+  plt_data_lines <- t_opts %>% map(function(t_opt){
+    acs <- std_conjmix_margin(t = t,
+                              rho2 = best_rho2_exact(t_opt),
+                              alpha=alpha)
+    naive <- naive_std_margin(t = t, alpha = alpha)
+    data.frame(Time = t,
+               Ratio = naive / acs,
+               t_opt = as.factor(t_opt))
+  }) %>% reduce(rbind)
+
+  plt_data_points <- plt_data_lines[plt_data_lines$Time %in% shape_points, ]
+
+  plt <-
+    ggplot(plt_data_lines) +
+    geom_line(aes(x = Time, y = Ratio, color = t_opt)) +
+    geom_point(data = plt_data_points,
+               aes(x = Time, y = Ratio, color = t_opt, shape = t_opt), size=2) +
+    guides(color = guide_legend(title = "t optimized"),
+           shape = guide_legend(title = "t optimized")) +
+
+    ylab("Ratio of confidence interval widths\nto confidence sequence widths") +
+    theme_minimal() +
+    theme(text = element_text(family="serif"), legend.position=c(0.75, 0.3))
+
+  if (log_scale)
+  {
+    plt <- plt +
+      scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                  function(x) 10^x),
+                    labels = scales::trans_format("log10",
+                                                  scales::math_format(10^.x))) +
+      annotation_logticks(colour = "grey", side = "b")
+  }
+
+  plt
+  return(plt)
+}
+

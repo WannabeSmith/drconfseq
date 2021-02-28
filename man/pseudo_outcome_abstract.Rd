@@ -2,7 +2,7 @@
 % Please edit documentation in R/doubly_robust.R
 \name{pseudo_outcome_abstract}
 \alias{pseudo_outcome_abstract}
-\title{Doubly-robust variables for binary treatment given nuisance function estimates.}
+\title{Doubly-robust pseudo-outcome for binary treatment given nuisance function estimates.}
 \usage{
 pseudo_outcome_abstract(y, reg_1, reg_0, propensity_score, treatment)
 }
