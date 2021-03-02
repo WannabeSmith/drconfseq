@@ -20,7 +20,7 @@ prop_score_true <- function(x){1/2}
 reg_observed <- apply(X, MARGIN=1, FUN=reg_true)
 p <- apply(X, MARGIN=1, FUN=prop_score_true)
 treatment <- rbinom(n, 1, p)
-y <- reg_observed + treatment*ATE + rt(n, df=7)
+y <- reg_observed + treatment*ATE + rt(n, df=4)
 
 # Get SuperLearner prediction function for $\mu^1$.
 # Using default ML algorithm choices
@@ -36,8 +36,7 @@ pi_fn <- get_SL_fn(family = binomial)
 glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 
 
-#times <- c(100, 200, 300, 400, 500, 750, 1000, 2000, 5000, 10000)
-times <- unique(round(logseq(100, 10000, n = 30)))
+times <- unique(round(logseq(250, 10000, n = 30)))
 alpha <- 0.05
 n_cores <- detectCores()
 
