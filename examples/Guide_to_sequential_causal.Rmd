@@ -1,9 +1,6 @@
 ---
 title: "The `sequential.causal` package"
-output:
-  html_document:
-    keep_md: true
-  pdf_document: default
+output: md_document
 ---
 
 \newcommand{\EE}{\mathbb E}
@@ -23,6 +20,7 @@ devtools::install_github('wannabesmith/sequential.causal')
 ```{r, warning=FALSE, message=FALSE}
 library(sequential.causal)
 library(parallel)
+library(pracma)
 ```
 
 Let's jump into a simple example based on the paper "Doubly-robust confidence sequences for sequential causal inference" by Waudby-Smith et al. (2021). Suppose that we wish to estimate the ATE in an observational setting with no unmeasured confounding.
@@ -110,7 +108,7 @@ glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 glm_prop <- get_SL_fn(SL.library="SL.glm", family=binomial())
 
 # Compute the confidence sequence at logarithmically-spaced time points
-times <- unique(round(logseq(250, n, n = 30)))
+times <- unique(round(logseq(250, 1000, n = 10)))
 alpha <- 0.05
 # Set n_cores to 1 if you do not want to do parallel processing
 n_cores <- detectCores()

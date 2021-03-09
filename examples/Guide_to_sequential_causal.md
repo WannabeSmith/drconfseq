@@ -1,143 +1,117 @@
----
-title: "The `sequential.causal` package"
-output:
-  html_document:
-    keep_md: true
-  pdf_document: default
----
-
-\newcommand{\EE}{\mathbb E}
-\newcommand{\iid}{\overset{iid}{\sim}}
-
-
-
 #### `sequential.causal` is an R package for sequential inference of the average treatment effect (ATE).
 
-To download the package, run the following 
+To download the package, run the following
 
-```r
-devtools::install_github('wannabesmith/sequential.causal')
-```
+    devtools::install_github('wannabesmith/sequential.causal')
 
+    library(sequential.causal)
+    library(parallel)
+    library(pracma)
 
-```r
-library(sequential.causal)
-library(parallel)
-```
+Let’s jump into a simple example based on the paper “Doubly-robust
+confidence sequences for sequential causal inference” by Waudby-Smith et
+al. (2021). Suppose that we wish to estimate the ATE in an observational
+setting with no unmeasured confounding.
 
-Let's jump into a simple example based on the paper "Doubly-robust confidence sequences for sequential causal inference" by Waudby-Smith et al. (2021). Suppose that we wish to estimate the ATE in an observational setting with no unmeasured confounding.
+First, we will generate *n* = 10<sup>4</sup> observations each with 3
+real-valued covariates from a trivariate Gaussian. That is,
 
-First, we will generate $n = 10^4$ observations each with 3 real-valued covariates from a trivariate Gaussian. That is,
-\begin{align*}
-    (x_{1, 1}, x_{1,2}, x_{1,3}) &\iid N_3(0, I_3) \\
-    (x_{2, 1}, x_{2,2}, x_{2,3}) &\iid N_3(0, I_3) \\
-    &\vdots \\
-    (x_{n, 1}, x_{n,2}, x_{n,3}) &\iid N_3(0, I_3). 
-\end{align*} 
+    n = 10000
+    d = 3
+    X <- cbind(1, matrix(rnorm(n*d), nrow = n))
 
+Randomly assign subjects to treatment or control groups with equal
+probability: Define the regression function, and the target parameter
+(which we will ensure is the average treatment effect by design),
+*ψ* := 1,
+Finally, generate outcomes *Y*<sub>1</sub>, …, *Y*<sub>*n*</sub> as
+*Y*<sub>*i*</sub> := *f*<sup>⋆</sup>(*x*<sub>*i*, 1</sub>, *x*<sub>*i*, 2</sub>, *x*<sub>*i*, 3</sub>) + *ψ* ⋅ *A*<sub>*i*</sub> + *ϵ*<sub>*i*</sub>,
+where $\\epsilon\_i \\overset{iid}{\\sim}t\_{5}$ are drawn from a
+*t*-distribution with 5 degrees of freedom.
 
-```r
-n = 10000
-d = 3
-X <- cbind(1, matrix(rnorm(n*d), nrow = n))
-```
+    ATE <- 1
 
-Randomly assign subjects to treatment or control groups with equal probability:
-\begin{equation}
-\label{eq:completeRandomization}
-    A_1, \dots, A_n \sim \text{Bernoulli}(1/2). 
-\end{equation}
-Define the regression function,
-\begin{equation}
-\label{eq:simulationRegressionFunction}
-    f^\star(x_1, x_2, x_3) := 1 - x_1^2 - 2\sin(x_2) + 3|x_3|, 
-\end{equation} 
-and the target parameter (which we will ensure is the average treatment effect by design),
-\[ \psi := 1, \]
-Finally, generate outcomes $Y_1, \dots, Y_n$ as 
-\[ Y_i := f^\star(x_{i, 1}, x_{i, 2}, x_{i,3}) + \psi\cdot A_i + \epsilon_i,
-\]
-where $\epsilon_i \iid t_{5}$ are drawn from a $t$-distribution with 5 degrees of freedom.
+    beta_mu <- c(1, -1, -2, 3)
 
+    reg_true <- function(x)
+    {
+      beta_mu %*% c(1, x[1]^2, sin(x[2]), abs(x[3]))
+    }
 
-```r
-ATE <- 1
+    prop_score_true <- function(x)
+    {
+      logodds <- reg_true(x)
+      pi = exp(logodds)/(1 + exp(logodds))
+      # Ensure bounded away from 0 and 1
+      pi = pi*0.6 + 0.2
+    }
 
-beta_mu <- c(1, -1, -2, 3)
+    reg_observed <- apply(X, MARGIN=1, FUN=reg_true)
+    p <- apply(X, MARGIN=1, FUN=prop_score_true)
+    treatment <- rbinom(n, 1, p)
+    y <- reg_observed + treatment*ATE + rt(n, df=5)
 
-reg_true <- function(x)
-{
-  beta_mu %*% c(1, x[1]^2, sin(x[2]), abs(x[3]))
-}
+We will build three estimators for the ATE with increasing degrees of
+complexity.
 
-prop_score_true <- function(x)
-{
-  logodds <- reg_true(x)
-  pi = exp(logodds)/(1 + exp(logodds))
-  # Ensure bounded away from 0 and 1
-  pi = pi*0.6 + 0.2
-}
+1.  **Unadjusted**: uses the constant function 0 for the outcome
+    regression and the fraction of treated subjects for the propensity
+    score. This is equivalent to an inverse-probability-weighted
+    estimator whose propensity scores are estimated ignoring covariates.
+2.  **Parametric**: estimates the outcome regression with a linear model
+    and the propensity score with logistic regression.
+3.  **Super Learner**: estimates the outcome regression and propensity
+    score with stacked regressors/classifiers.
 
-reg_observed <- apply(X, MARGIN=1, FUN=reg_true)
-p <- apply(X, MARGIN=1, FUN=prop_score_true)
-treatment <- rbinom(n, 1, p)
-y <- reg_observed + treatment*ATE + rt(n, df=5)
-```
+We expect the Super Learner to be the only consistent and most efficient
+estimator of the three, since the regression function and propensity
+scores are misspecified for the Unadjusted and Parametric models. In
+this case, the Super Learner we use is implicitly made up of regression
+splines, GAMs, *k*-NN, GLMs with interactions and regularization, and
+random forests (see `?get_SL_fn` for more details and to customize this
+list). Under the hood, these flexible machine learning methods are
+combined using the fantastic `SuperLearner` package.
 
-We will build three estimators for the ATE with increasing degrees of complexity.
+    # Get SuperLearner prediction function for $\mu^1$.
+    # Using default ML algorithm choices
+    sl_reg_1 <- get_SL_fn()
 
-1. **Unadjusted**: uses the constant function $0$ for the outcome regression and the fraction of treated subjects for the propensity score. This is equivalent to an inverse-probability-weighted estimator whose propensity scores are estimated ignoring covariates.
-2. **Parametric**: estimates the outcome regression with a linear model and the propensity score with logistic regression.
-3. **Super Learner**: estimates the outcome regression and propensity score with stacked regressors/classifiers.
+    # Do the same for $\mu^0$.
+    sl_reg_0 <- get_SL_fn()
 
-We expect the Super Learner to be the only consistent and most efficient estimator of the three, since the regression function and propensity scores are misspecified for the Unadjusted and Parametric models. 
-In this case, the Super Learner we use is implicitly made up of regression splines, GAMs, $k$-NN, GLMs with interactions and regularization, and random forests (see `?get_SL_fn` for more details and to customize this list). Under the hood, these flexible machine learning methods are combined using the fantastic `SuperLearner` package.
+    # Get SuperLearner prediction function for $\pi$
+    pi_fn <- get_SL_fn(family = binomial())
 
+    # Get GLM regression superlearner
+    glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 
+    # Get GLM propensity score superlearner
+    glm_prop <- get_SL_fn(SL.library="SL.glm", family=binomial())
 
-```r
-# Get SuperLearner prediction function for $\mu^1$.
-# Using default ML algorithm choices
-sl_reg_1 <- get_SL_fn()
+    # Compute the confidence sequence at logarithmically-spaced time points
+    times <- unique(round(logseq(250, 1000, n = 10)))
+    alpha <- 0.05
+    # Set n_cores to 1 if you do not want to do parallel processing
+    n_cores <- detectCores()
 
-# Do the same for $\mu^0$.
-sl_reg_0 <- get_SL_fn()
+    # Split the sample (if we don't do this explicitly,
+    # confseq_ate can automatically)
+    train_idx <- rbinom(n, p = 0.5, size = 1) == 1
 
-# Get SuperLearner prediction function for $\pi$
-pi_fn <- get_SL_fn(family = binomial())
+    confseq_SL <- confseq_ate(y, X, treatment, regression_fn_1 = sl_reg_1,
+                              regression_fn_0 = sl_reg_1,
+                              propensity_score_fn = pi_fn,
+                              train_idx = train_idx, t_opt = 500, alpha=alpha,
+                              times=times, n_cores = n_cores, cross_fit = TRUE)
+    confseq_glm <- confseq_ate(y, X, treatment, regression_fn_1 = glm_reg_1,
+                               regression_fn_0 = glm_reg_1,
+                               propensity_score_fn = glm_prop,
+                               train_idx = train_idx, t_opt = 500, alpha=alpha,
+                               times=times, n_cores = n_cores, cross_fit = TRUE)
 
-# Get GLM regression superlearner
-glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
+    confseq_unadj <- confseq_ate_unadjusted(y = y, treatment = treatment,
+                                            propensity_score = mean(treatment),
+                                            t_opt = 500, alpha = alpha,
+                                            times = times)
 
-# Get GLM propensity score superlearner
-glm_prop <- get_SL_fn(SL.library="SL.glm", family=binomial())
-
-# Compute the confidence sequence at 15 logarithmically-spaced time points
-times <- unique(round(logseq(250, 1000, n = 10)))
-alpha <- 0.05
-# Set n_cores to 1 if you do not want to do parallel processing
-n_cores <- detectCores()
-
-# Split the sample (if we don't do this explicitly,
-# confseq_ate can automatically)
-train_idx <- rbinom(n, p = 0.5, size = 1) == 1
-
-confseq_SL <- confseq_ate(y, X, treatment, regression_fn_1 = sl_reg_1,
-                          regression_fn_0 = sl_reg_1,
-                          propensity_score_fn = pi_fn,
-                          train_idx = train_idx, t_opt = 500, alpha=alpha,
-                          times=times, n_cores = n_cores, cross_fit = TRUE)
-confseq_glm <- confseq_ate(y, X, treatment, regression_fn_1 = glm_reg_1,
-                           regression_fn_0 = glm_reg_1,
-                           propensity_score_fn = glm_prop,
-                           train_idx = train_idx, t_opt = 500, alpha=alpha,
-                           times=times, n_cores = n_cores, cross_fit = TRUE)
-
-confseq_unadj <- confseq_ate_unadjusted(y = y, treatment = treatment,
-                                        propensity_score = mean(treatment),
-                                        t_opt = 500, alpha = alpha,
-                                        times = times)
-```
-
-![](Guide_to_sequential_causal_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-
+![](Guide_to_sequential_causal_files/figure-markdown_strict/unnamed-chunk-6-1.png)
