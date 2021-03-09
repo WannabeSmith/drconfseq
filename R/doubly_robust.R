@@ -226,7 +226,7 @@ get_SL_fn <- function(SL.library=c("SL.earth","SL.gam",
                                    "SL.kernelKnn",
                                    "SL.glm","SL.glmnet",
                                    "SL.glm.interaction",
-                                   "SL.mean", "SL.ranger"),
+                                   "SL.ranger"),
                       family=gaussian())
 {
   SL_fn <- function(y, X, newX)
