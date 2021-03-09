@@ -5,8 +5,8 @@
 \title{Get the Super Learner function given a library of SuperLearner algorithms.}
 \usage{
 get_SL_fn(
-  SL.library = c("SL.earth", "SL.gam", "SL.glm", "SL.glmnet", "SL.glm.interaction",
-    "SL.mean", "SL.ranger"),
+  SL.library = c("SL.earth", "SL.gam", "SL.kernelKnn", "SL.glm", "SL.glmnet",
+    "SL.glm.interaction", "SL.ranger"),
   family = gaussian()
 )
 }
