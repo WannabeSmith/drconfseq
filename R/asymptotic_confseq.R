@@ -20,14 +20,14 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05/2)
   )
 }
 
-#' Get the best value of $\rho^2$ for a time t_opt (exact optimization)
+#' Get the best value of $rho^2$ for a time t_opt (exact optimization)
 #'
 #' Function signature: (int, real) -> real
 #'
-#' @param t_opt The time for which $\rho^2$
+#' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
 #' @param alpha The significance level (a (0, 1)-valued real).
-#' @return The corresponding value of $\rho^2$ (positive real)
+#' @return The corresponding value of $rho^2$ (positive real)
 #' @export
 best_rho2_exact <- function(t_opt, alpha_opt=0.05/2)
 {
@@ -37,14 +37,14 @@ best_rho2_exact <- function(t_opt, alpha_opt=0.05/2)
   interval=c(0, 10))$minimum
 }
 
-#' Get the best value of $\rho^2$ for a time t_opt (approximate optimization)
+#' Get the best value of $rho^2$ for a time t_opt (approximate optimization)
 #'
 #' Function signature: (int, real) -> real
 #'
-#' @param t_opt The time for which $\rho^2$
+#' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
 #' @param alpha The significance level (a (0, 1)-valued real).
-#' @return The corresponding value of $\rho^2$ (positive real)
+#' @return The corresponding value of $rho^2$ (positive real)
 #' @export
 best_rho2_approx <- function(t_opt, alpha_opt=0.05/2)
 {
