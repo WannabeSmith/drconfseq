@@ -5,14 +5,13 @@ library(pracma)
 ATE <- 1
 n = 10000
 d = 3
-X <- cbind(1, matrix(rnorm(n*(d-1)), nrow = n))
+X <- cbind(1, matrix(rnorm(n*d), nrow = n))
 
-beta_mu <- rnorm(rnorm(d, sd = 1))
-beta_mu <- c(1, -2, 3)
+beta_mu <- c(1, -1, -2, 3)
 
 reg_true <- function(x)
 {
-  beta_mu %*% c(x[1]^2, sin(x[2]), abs(x[3]))
+  beta_mu %*% c(x[1], x[2]^2, sin(x[3]), abs(x[4]))
 }
 
 prop_score_true <- function(x)
@@ -26,7 +25,7 @@ prop_score_true <- function(x)
 reg_observed <- apply(X, MARGIN=1, FUN=reg_true)
 p <- apply(X, MARGIN=1, FUN=prop_score_true)
 treatment <- rbinom(n, 1, p)
-y <- reg_observed + treatment*ATE + rt(n, df=4)
+y <- reg_observed + treatment*ATE + rt(n, df=5)
 
 drate_variables_oracle <-
   pseudo_outcome_abstract(y = y, reg_1 = reg_observed,
