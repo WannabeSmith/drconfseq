@@ -4,7 +4,6 @@ output: md_document
 ---
 
 \newcommand{\EE}{\mathbb E}
-\newcommand{\iid}{\overset{iid}{\sim}}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -27,10 +26,10 @@ Let's jump into a simple example based on the paper "Doubly-robust confidence se
 
 First, we will generate $n = 10^4$ observations each with 3 real-valued covariates from a trivariate Gaussian. That is,
 \begin{align*}
-    (x_{1, 1}, x_{1,2}, x_{1,3}) &\iid N_3(0, I_3) \\
-    (x_{2, 1}, x_{2,2}, x_{2,3}) &\iid N_3(0, I_3) \\
+    (x_{1, 1}, x_{1,2}, x_{1,3}) &\sim N_3(0, I_3) \\
+    (x_{2, 1}, x_{2,2}, x_{2,3}) &\sim N_3(0, I_3) \\
     &\vdots \\
-    (x_{n, 1}, x_{n,2}, x_{n,3}) &\iid N_3(0, I_3). 
+    (x_{n, 1}, x_{n,2}, x_{n,3}) &\sim N_3(0, I_3). 
 \end{align*} 
 
 ```{r}
@@ -50,11 +49,14 @@ Define the regression function,
     f^\star(x_1, x_2, x_3) := 1 - x_1^2 - 2\sin(x_2) + 3|x_3|, 
 \end{equation} 
 and the target parameter (which we will ensure is the average treatment effect by design),
-\[ \psi := 1, \]
+
+\[ \psi := 1. \]
+
 Finally, generate outcomes $Y_1, \dots, Y_n$ as 
-\[ Y_i := f^\star(x_{i, 1}, x_{i, 2}, x_{i,3}) + \psi\cdot A_i + \epsilon_i,
-\]
-where $\epsilon_i \iid t_{5}$ are drawn from a $t$-distribution with 5 degrees of freedom.
+
+\[ Y_i := f^\star(x_{i, 1}, x_{i, 2}, x_{i,3}) + \psi\cdot A_i + \epsilon_i, \]
+
+where $\epsilon_i \sim t_{5}$ are drawn from a $t$-distribution with 5 degrees of freedom.
 
 ```{r}
 ATE <- 1

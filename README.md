@@ -2,11 +2,13 @@
 
 To download the package, run the following
 
+```r
     devtools::install_github('wannabesmith/sequential.causal')
 
     library(sequential.causal)
     library(parallel)
     library(pracma)
+```
 
 Let’s jump into a simple example based on the paper “Doubly-robust
 confidence sequences for sequential causal inference” by Waudby-Smith et
@@ -16,9 +18,11 @@ setting with no unmeasured confounding.
 First, we will generate *n* = 10<sup>4</sup> observations each with 3
 real-valued covariates from a trivariate Gaussian. That is,
 
+```r
     n = 10000
     d = 3
     X <- cbind(1, matrix(rnorm(n*d), nrow = n))
+```
 
 Randomly assign subjects to treatment or control groups with equal
 probability: Define the regression function, and the target parameter
@@ -28,7 +32,7 @@ Finally, generate outcomes *Y*<sub>1</sub>, …, *Y*<sub>*n*</sub> as
 *Y*<sub>*i*</sub> := *f*<sup>⋆</sup>(*x*<sub>*i*, 1</sub>, *x*<sub>*i*, 2</sub>, *x*<sub>*i*, 3</sub>) + *ψ* ⋅ *A*<sub>*i*</sub> + *ϵ*<sub>*i*</sub>,
 where $\\epsilon\_i \\overset{iid}{\\sim}t\_{5}$ are drawn from a
 *t*-distribution with 5 degrees of freedom.
-
+```r
     ATE <- 1
 
     beta_mu <- c(1, -1, -2, 3)
@@ -50,6 +54,7 @@ where $\\epsilon\_i \\overset{iid}{\\sim}t\_{5}$ are drawn from a
     p <- apply(X, MARGIN=1, FUN=prop_score_true)
     treatment <- rbinom(n, 1, p)
     y <- reg_observed + treatment*ATE + rt(n, df=5)
+```
 
 We will build three estimators for the ATE with increasing degrees of
 complexity.
@@ -72,6 +77,7 @@ random forests (see `?get_SL_fn` for more details and to customize this
 list). Under the hood, these flexible machine learning methods are
 combined using the fantastic `SuperLearner` package.
 
+```r
     # Get SuperLearner prediction function for $\mu^1$.
     # Using default ML algorithm choices
     sl_reg_1 <- get_SL_fn()
@@ -113,5 +119,6 @@ combined using the fantastic `SuperLearner` package.
                                             propensity_score = mean(treatment),
                                             t_opt = 500, alpha = alpha,
                                             times = times)
+```
 
 ![](examples/Guide_to_sequential_causal_files/figure-markdown_strict/unnamed-chunk-6-1.png)

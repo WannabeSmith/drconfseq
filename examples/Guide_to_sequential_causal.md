@@ -23,10 +23,14 @@ real-valued covariates from a trivariate Gaussian. That is,
 Randomly assign subjects to treatment or control groups with equal
 probability: Define the regression function, and the target parameter
 (which we will ensure is the average treatment effect by design),
-*ψ* := 1,
+
+*ψ* := 1.
+
 Finally, generate outcomes *Y*<sub>1</sub>, …, *Y*<sub>*n*</sub> as
+
 *Y*<sub>*i*</sub> := *f*<sup>⋆</sup>(*x*<sub>*i*, 1</sub>, *x*<sub>*i*, 2</sub>, *x*<sub>*i*, 3</sub>) + *ψ* ⋅ *A*<sub>*i*</sub> + *ϵ*<sub>*i*</sub>,
-where $\\epsilon\_i \\overset{iid}{\\sim}t\_{5}$ are drawn from a
+
+where *ϵ*<sub>*i*</sub> ∼ *t*<sub>5</sub> are drawn from a
 *t*-distribution with 5 degrees of freedom.
 
     ATE <- 1
