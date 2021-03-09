@@ -9,18 +9,18 @@ output:
 \newcommand{\EE}{\mathbb E}
 \newcommand{\iid}{\overset{iid}{\sim}}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 #### `sequential.causal` is an R package for sequential inference of the average treatment effect (ATE).
 
 To download the package, run the following 
-```{r, eval=FALSE}
+
+```r
 devtools::install_github('wannabesmith/sequential.causal')
 ```
 
-```{r, warning=FALSE, message=FALSE}
+
+```r
 library(sequential.causal)
 library(parallel)
 ```
@@ -35,7 +35,8 @@ First, we will generate $n = 10^4$ observations each with 3 real-valued covariat
     (x_{n, 1}, x_{n,2}, x_{n,3}) &\iid N_3(0, I_3). 
 \end{align*} 
 
-```{r}
+
+```r
 n = 10000
 d = 3
 X <- cbind(1, matrix(rnorm(n*d), nrow = n))
@@ -58,7 +59,8 @@ Finally, generate outcomes $Y_1, \dots, Y_n$ as
 \]
 where $\epsilon_i \iid t_{5}$ are drawn from a $t$-distribution with 5 degrees of freedom.
 
-```{r}
+
+```r
 ATE <- 1
 
 beta_mu <- c(1, -1, -2, 3)
@@ -92,7 +94,8 @@ We expect the Super Learner to be the only consistent and most efficient estimat
 In this case, the Super Learner we use is implicitly made up of regression splines, GAMs, $k$-NN, GLMs with interactions and regularization, and random forests (see `?get_SL_fn` for more details and to customize this list). Under the hood, these flexible machine learning methods are combined using the fantastic `SuperLearner` package.
 
 
-```{r, cache = TRUE}
+
+```r
 # Get SuperLearner prediction function for $\mu^1$.
 # Using default ML algorithm choices
 sl_reg_1 <- get_SL_fn()
@@ -136,41 +139,5 @@ confseq_unadj <- confseq_ate_unadjusted(y = y, treatment = treatment,
                                         times = times)
 ```
 
-```{r, echo = FALSE, message = FALSE, fig.width=9, fig.height=6}
-library(ggplot2)
-
-plot_df <- data.frame(t = rep(times, 6), 
-                      bound = c(confseq_SL$l, confseq_SL$u,
-                                confseq_glm$l, confseq_glm$u,
-                                confseq_unadj$l, confseq_unadj$u),
-                      upper_lower = c(rep('l', length(confseq_SL$l)),
-                                      rep('u', length(confseq_SL$u)),
-                                      rep('l', length(confseq_glm$l)),
-                                      rep('u', length(confseq_glm$u)),
-                                      rep('l', length(confseq_unadj$u)),
-                                      rep('u', length(confseq_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
-                               rep('Parametric', 2*length(confseq_glm$l)),
-                               rep('Unadjusted', 2*length(confseq_unadj$l))))
-
-plt_cs <- 
-  ggplot() + 
-  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
-            data=plot_df[plot_df$upper_lower=='l',]) +
-  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
-            data=plot_df[plot_df$upper_lower=='u',]) +
-  geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
-  ylab('Confidence sequences for the\naverage treatment effect') + xlab('Time') +
-  scale_x_log10(breaks = scales::trans_breaks("log10",
-                                              function(x) 10^x),
-                labels = scales::trans_format("log10",
-                                              scales::math_format(10^.x))) +
-  annotation_logticks(colour = "grey", side = "b") + 
-  theme_minimal() + 
-  theme(text = element_text(family="serif")) +
-  scale_color_brewer(palette="Set2")
-
-plt_cs
-
-```
+![](Guide_to_sequential_causal_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
