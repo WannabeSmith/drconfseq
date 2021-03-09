@@ -1,6 +1,8 @@
 ---
 title: "The `sequential.causal` package"
-output: md_document
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 \newcommand{\EE}{\mathbb E}
