@@ -1,4 +1,4 @@
-# The sequential.causal package
+# The `sequential.causal` package
 
 #### `sequential.causal` is an R package for sequential inference of the average treatment effect (ATE).
 
@@ -104,7 +104,7 @@ glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 glm_prop <- get_SL_fn(SL.library="SL.glm", family=binomial())
 
 # Compute the confidence sequence at logarithmically-spaced time points
-times <- unique(round(logseq(250, 1000, n = 10)))
+times <- unique(round(logseq(250, 10000, n = 30)))
 alpha <- 0.05
 # Set n_cores to 1 if you do not want to do parallel processing
 n_cores <- detectCores()
