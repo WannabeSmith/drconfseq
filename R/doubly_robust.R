@@ -223,7 +223,6 @@ pseudo_outcome_variance <- function(y, reg_1, reg_0,
 #'         for the covariates `newX`.
 #' @export
 get_SL_fn <- function(SL.library=c("SL.earth","SL.gam",
-                                   "SL.kernelKnn",
                                    "SL.glm","SL.glmnet",
                                    "SL.glm.interaction",
                                    "SL.ranger"),

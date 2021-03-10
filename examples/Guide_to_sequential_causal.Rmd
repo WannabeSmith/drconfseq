@@ -97,6 +97,7 @@ In this case, the Super Learner we use is implicitly made up of regression splin
 
 
 ```{r, cache = TRUE}
+
 # Get SuperLearner prediction function for $\mu^1$.
 # Using default ML algorithm choices
 sl_reg_1 <- get_SL_fn()
