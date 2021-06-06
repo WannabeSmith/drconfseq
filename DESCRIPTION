@@ -4,8 +4,8 @@ Title: Confidence sequences for the average treatment effect
 Version: 0.1.0
 Author: Ian Waudby-Smith
 Maintainer: Ian Waudby-Smith <ianws@cmu.edu>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Performs anytime-valid doubly robust uncertainty quantification of causal effects.
+    Based on the paper "Doubly robust confidence sequences for sequential causal inference" (https://arxiv.org/pdf/2103.06476.pdf).
 Depends:
   R (>= 3.5.0),
   SuperLearner
