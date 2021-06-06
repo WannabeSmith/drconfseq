@@ -1,4 +1,7 @@
-select total_fluids_tbl.hadm_id, 
+select sepsis3_fluids_w_subjectid.*, dod from 
+(select subject_id, sepsis3_fluids_tbl.*
+from mimiciii.admissions as adm
+join (select total_fluids_tbl.hadm_id, 
 excluded, intime, dbsource, 
 age, gender, ethnicity, diabetes, 
 bmi, first_service, elixhauser_hospital, 
@@ -19,4 +22,8 @@ where (ordercategoryname like '%Fluid%' or
 	   date_part('hour', iemv.starttime::timestamp - adm.admittime::timestamp) <= 24
 	   group by iemv.hadm_id) as total_fluids_tbl
 	   on sepsis3.hadm_id = total_fluids_tbl.hadm_id
-	   where excluded = 0 and sepsis_cdc=1
+	   where excluded = 0 and sepsis_cdc=1) as sepsis3_fluids_tbl
+	   on sepsis3_fluids_tbl.hadm_id = adm.hadm_id) as sepsis3_fluids_w_subjectid
+	   join mimiciii.patients as pt
+	   on pt.subject_id = sepsis3_fluids_w_subjectid.subject_id
+
