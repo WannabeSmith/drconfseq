@@ -105,45 +105,42 @@ pseudo_outcome_sequential <- function(y, X, treatment,
   }
 
   variables_list <- mclapply(times, function(time){
+    train_idx_t <- train_idx == TRUE
+    train_idx_t[(time+1):length(train_idx_t)] = FALSE
+    eval_idx_t <- 1 - train_idx == TRUE
+    eval_idx_t[(time+1):length(eval_idx_t)] = FALSE
+    # y
+    y_train <- y[train_idx_t]
+    y_eval <- y[eval_idx_t]
+    # X
+    X_train <- X[train_idx_t, ]
+    X_eval <- X[eval_idx_t, ]
+    # treatment
+    treatment_train <- treatment[train_idx_t]
+    treatment_eval <- treatment[eval_idx_t]
 
-    unlist(lapply(train_indices, function(train_idx){
-      train_idx_t <- train_idx == TRUE
-      train_idx_t[(time+1):length(train_idx_t)] = FALSE
-      eval_idx_t <- 1 - train_idx == TRUE
-      eval_idx_t[(time+1):length(eval_idx_t)] = FALSE
-      # y
-      y_train <- y[train_idx_t]
-      y_eval <- y[eval_idx_t]
-      # X
-      X_train <- X[train_idx_t, ]
-      X_eval <- X[eval_idx_t, ]
-      # treatment
-      treatment_train <- treatment[train_idx_t]
-      treatment_eval <- treatment[eval_idx_t]
+    reg_1_est <- regression_fn_1(y = y_train[treatment_train==1],
+                                 X = X_train[treatment_train==1, ],
+                                 newX = X_eval)
+    message(paste('Finished fitting regression model for treated at time',
+                  time))
+    reg_0_est <- regression_fn_0(y = y_train[treatment_train==0],
+                                 X = X_train[treatment_train==0, ],
+                                 newX = X_eval)
+    message(paste('Finished fitting regression model for untreated at time',
+                  time))
+    pi_est <- propensity_score_fn(y = as.numeric(treatment_train),
+                                  X = X_train,
+                                  newX = X_eval)
+    message(paste('Finished fitting prop. score function at time',
+                  time))
 
-      reg_1_est <- regression_fn_1(y = y_train[treatment_train==1],
-                                   X = X_train[treatment_train==1, ],
-                                   newX = X_eval)
-      message(paste('Finished fitting regression model for treated at time',
-                    time))
-      reg_0_est <- regression_fn_0(y = y_train[treatment_train==0],
-                                   X = X_train[treatment_train==0, ],
-                                   newX = X_eval)
-      message(paste('Finished fitting regression model for untreated at time',
-                    time))
-      pi_est <- propensity_score_fn(y = as.numeric(treatment_train),
-                                    X = X_train,
-                                    newX = X_eval)
-      message(paste('Finished fitting prop. score function at time',
-                    time))
-
-      variables <- pseudo_outcome_abstract(y = y_eval,
-                                           reg_1 = reg_1_est,
-                                           reg_0 = reg_0_est,
-                                           propensity_score = pi_est,
-                                           treatment = treatment_eval)
-      return(variables)
-    }))
+    variables <- pseudo_outcome_abstract(y = y_eval,
+                                         reg_1 = reg_1_est,
+                                         reg_0 = reg_0_est,
+                                         propensity_score = pi_est,
+                                         treatment = treatment_eval)
+    return(variables)
   }, mc.cores = n_cores)
 
   names(variables_list) <- times
