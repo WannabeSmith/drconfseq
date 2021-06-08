@@ -10,8 +10,8 @@ from
 			mimiciii.admissions as adm
 			join (
 				select
-					total_fluids_tbl.hadm_id, 
-					excluded,
+					total_fluids_tbl.hadm_id,
+					fluids_24h_L,
 					intime,
 					age,
 					gender,
@@ -28,7 +28,7 @@ from
 					join (
 						select
 							iemv.hadm_id,
-							sum(amount) as total_fluids -- Counting up the total fluids received in the first 24 hours of treatment
+							sum(amount) / 1000 as fluids_24h_L -- Counting up the total fluids received in the first 24 hours of treatment
 						from
 							mimiciii.inputevents_mv as iemv -- Only considering patients in metavision following https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7036175/
 							left join mimiciii.admissions as adm on iemv.hadm_id = adm.hadm_id
