@@ -125,6 +125,10 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 
 #' Plot ratio of confidence sequence to confidence interval widths
 #'
+#' @importFrom purrr map reduce
+#' @importFrom ggplot2 ggplot geom_line geom_point aes guides
+#'             ylab theme_minimal theme scale_x_log10 annotation_logticks
+#'             guide_legend element_text
 #' @param t_opts The times for which to optimize the confidence sequence
 #'               (vector of positive integers)
 #' @param t The times to plot the confidence sequence

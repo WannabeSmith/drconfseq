@@ -90,8 +90,6 @@ pseudo_outcome_sequential <- function(y, X, treatment,
 
   eval_idx <- 1-train_idx == TRUE
 
-  X <- data.frame(X)
-
   if (any(is.null(times)))
   {
     warning('"times" was left as null. Computing only at time n.')
@@ -107,7 +105,9 @@ pseudo_outcome_sequential <- function(y, X, treatment,
   }
 
   variables_list <- mclapply(times, function(time){
-
+    # This unlist(lapply(...)) looks a bit strange, but it is
+    # necessary for when the user wishes to perform cross-fitting.
+    # See above if/else statement.
     unlist(lapply(train_indices, function(train_idx){
       train_idx_t <- train_idx == TRUE
       train_idx_t[(time+1):length(train_idx_t)] = FALSE

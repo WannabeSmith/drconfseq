@@ -28,12 +28,12 @@ palette <- "Set2"
 
 ```{r}
 # Load miscoverage_rates
-load('../simulations/start_time/miscoverage_rates.RData')
+load('../computations/start_time/miscoverage_rates.RData')
 
 n <- as.integer(names(miscoverage_rates)[[1]]) +
   length(miscoverage_rates[[1]]) - 1
 
-load('../simulations/start_time/alpha.RData')
+load('../computations/start_time/alpha.RData')
 
 plt_data_lines <- as.integer(names(miscoverage_rates)) %>%
   map(function(start_time){
@@ -115,7 +115,7 @@ plt
 # Unadjusted CSs vs CIs for the ATE in randomized experiments
 
 ```{r}
-load('../simulations/cs_vs_ci/cs_vs_ci.RData')
+load('../computations/cs_vs_ci/cs_vs_ci.RData')
 
 l_acs <- acs$l[start_time:n]
 u_acs <- acs$u[start_time:n]
@@ -195,7 +195,7 @@ ggsave('figures/miscoverage.pdf', plot = plt_both,
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load('../simulations/randomized_experiment_SL/randomized_experiment_SL.RData')
+load('../computations/randomized_experiment_SL/randomized_experiment_SL.RData')
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -239,7 +239,7 @@ plt_cs
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load('../simulations/observational_study_SL/observational_study_SL.RData')
+load('../computations/observational_study_SL/observational_study_SL.RData')
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -276,5 +276,42 @@ ggsave('figures/CS_observational.pdf',
        width=plt_width, height=plt_height, units='cm')
 plt_cs
 
+```
+
+## Sepsis example
+
+```{r}
+
+load('../computations/sepsis/sepsis_cs.RData')
+
+plot_df <- data.frame(t = rep(times, 6), 
+                      bound = c(cs_SL$l, cs_SL$u,
+                                cs_glm$l, cs_glm$u,
+                                cs_unadj$l, cs_unadj$u),
+                      upper_lower = c(rep('l', length(cs_SL$l)),
+                                      rep('u', length(cs_SL$u)),
+                                      rep('l', length(cs_glm$l)),
+                                      rep('u', length(cs_glm$u)),
+                                      rep('l', length(cs_unadj$u)),
+                                      rep('u', length(cs_unadj$u))),
+                      Model = c(rep('Super Learner', 2*length(cs_SL$l)),
+                               rep('Parametric', 2*length(cs_glm$l)),
+                               rep('Unadjusted', 2*length(cs_unadj$l))))
+
+plt_cs <- 
+  ggplot() + 
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='l',]) +
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='u',]) +
+  ylab('Estimated effect of high fluid intake on 30-day mortality') +
+  xlab('Number of sepsis patients') +
+  theme_fn() + 
+  theme(text = element_text(family="serif")) +
+  scale_color_brewer(palette=palette)
+
+ggsave('figures/sepsis.pdf',
+       width=plt_width, height=plt_height, units='cm')
+plt_cs
 ```
 

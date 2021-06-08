@@ -11,7 +11,9 @@ Depends:
   SuperLearner
 Imports:
   stats,
-  parallel
+  parallel,
+  ggplot2,
+  purrr
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
