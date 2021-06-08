@@ -55,7 +55,8 @@ from
 					) as total_fluids_tbl on sepsis3.hadm_id = total_fluids_tbl.hadm_id
 				where
 					excluded = 0 -- Apply exclusion criteria listed here https://github.com/alistairewj/sepsis3-mimic/blob/master/query/tbls/sepsis3.sql
-					and suspected_infection_time_poe is not null and sofa >= 2 -- Using sepsis-3 definition according to https://github.com/alistairewj/sepsis3-mimic/blob/master/sepsis-3-main.ipynb
+					and suspected_infection_time_poe is not null
+					and sofa >= 2 -- Using sepsis-3 definition according to Singer, Mervyn, et al. "The third international consensus definitions for sepsis and septic shock (Sepsis-3)." Jama 315.8 (2016): 801-810.
 			) as sepsis3_fluids_tbl on sepsis3_fluids_tbl.hadm_id = adm.hadm_id
 	) as sepsis3_fluids_w_subjectid -- table containing sepsis3 patients, 24hr fluid administered, with subject_id (for later joins)
 	join mimiciii.patients as pt on pt.subject_id = sepsis3_fluids_w_subjectid.subject_id
