@@ -10,7 +10,7 @@ confseq_ate(
   treatment,
   regression_fn_1 = get_SL_fn(),
   regression_fn_0 = get_SL_fn(),
-  propensity_score_fn = get_SL_fn(family = binomial),
+  propensity_score_fn = get_SL_fn(family = binomial()),
   t_opt,
   train_idx = NULL,
   alpha = 0.05,

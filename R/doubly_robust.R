@@ -90,8 +90,6 @@ pseudo_outcome_sequential <- function(y, X, treatment,
 
   eval_idx <- 1-train_idx == TRUE
 
-  X <- data.frame(X)
-
   if (any(is.null(times)))
   {
     warning('"times" was left as null. Computing only at time n.')
