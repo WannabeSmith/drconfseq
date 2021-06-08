@@ -26,9 +26,9 @@ clean_sepsis_data <- function(data)
       mortality_30d = ifelse(as.Date(dod) - as.Date(intime) <= 30 &
                                !is.na(dod),
                              TRUE, FALSE),
-      # Dichotomize fluid intake to > or <= 8L
+      # Dichotomize fluid intake to > or <= 6L
       # in the first 24 hours of admission
-      fluids_gt8L_24h = fluids_24h_l > 8L,
+      fluids_lt6L_24h = fluids_24h_l <= 6,
       fluids_24h_l = NULL,
       # Encode diabetes as factor
       diabetes = as.factor(diabetes),
@@ -39,7 +39,8 @@ clean_sepsis_data <- function(data)
 }
 
 
-sepsis = fread('data/sepsis_patients.csv', na.strings = "NULL") %>%
+sepsis = fread('./data/sepsis_patients.csv',
+               na.strings = "NULL") %>%
   clean_sepsis_data()
 
 y <- as.numeric(sepsis$mortality_30d)
@@ -50,7 +51,7 @@ X <- model.matrix(~ age + gender + diabetes +
   as.data.frame() %>%
   mutate(`(Intercept)` = NULL)
 
-treatment <- as.numeric(sepsis$fluids_gt8L_24h)
+treatment <- as.numeric(sepsis$fluids_lt6L_24h)
 SL.library <- c("SL.earth",
                 "SL.gam",
                 "SL.glmnet",
@@ -59,21 +60,39 @@ SL.library <- c("SL.earth",
                 "SL.xgboost")
 
 # times at which to compute the confidence sequences
-times <- unique(round(pracma::logseq(1500, nrow(sepsis), n = 30)))
+times <- unique(round(pracma::logseq(500, nrow(sepsis), n = 30)))
+t_opt = 1500
 
-cs_ate <- confseq_ate(y = y,
+cs_unadj <-
+  confseq_ate_unadjusted(y = y,
+                         treatment = treatment,
+                         propensity_score = mean(sepsis$fluids_lt6L_24h),
+                         t_opt = t_opt, times = times)
+
+cs_glm <- confseq_ate(y = y,
+                      X = X,
+                      treatment = treatment,
+                      regression_fn_1 = get_SL_fn(SL.library = c('SL.glm'),
+                                                  family = binomial()),
+                      propensity_score_fn = get_SL_fn(SL.library = 'SL.glm',
+                                                      family = binomial()),
+                      t_opt = t_opt,
+                      times = times,
+                      n_cores = 8,
+                      cross_fit = TRUE)
+
+cs_SL <- confseq_ate(y = y,
                       X = X,
                       treatment = treatment,
                       regression_fn_1 = get_SL_fn(SL.library = SL.library,
                                                   family = binomial()),
                       propensity_score_fn = get_SL_fn(SL.library = SL.library,
                                                       family = binomial()),
-                      t_opt = 1500,
+                      t_opt = t_opt,
                       times = times,
                       n_cores = 8,
                       cross_fit = TRUE)
 
-
 r_data_dir <- "./"
-save(cs_ate, times,
+save(cs_unadj, cs_glm, cs_SL, times,
      file=paste(r_data_dir, 'sepsis_cs.RData', sep=""))
