@@ -22,7 +22,8 @@ from
 					elixhauser_hospital,
 					sofa,
 					lods,
-					sirs
+					sirs,
+					qsofa
 				from
 					public.sepsis3 as sepsis3 -- sepsis3 table created using alistairewj's scripts: https://github.com/alistairewj/sepsis3-mimic/blob/master/query/tbls/sepsis3.sql
 					join (
