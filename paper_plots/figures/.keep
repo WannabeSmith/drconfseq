@@ -1,0 +1,2 @@
+This file is used so that the 'figures' directory is checked into git.
+We want this directory to be available for those who check out the repository, so that 'plots_for_paper.Rmd' will have somewhere to place pdf outputs.

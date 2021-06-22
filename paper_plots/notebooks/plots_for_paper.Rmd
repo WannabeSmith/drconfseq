@@ -10,16 +10,22 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(here)
 library(ggplot2)
 library(gridExtra)
 library(purrr)
 library(dplyr)
 library(sequential.causal)
+library(pracma)
 
 plt_width = 18
 plt_height = 9
 theme_fn <- theme_minimal
 palette <- "Set2"
+alpha <- 0.05
+
+figures_dir = here('paper_plots/figures/')
+computations_dir = here('paper_plots/computations')
 ```
 
 
@@ -28,7 +34,7 @@ palette <- "Set2"
 
 ```{r}
 # Load miscoverage_rates
-load('../computations/start_time/miscoverage_rates.RData')
+load(here(computations_dir, 'start_time/start_time.RData'))
 
 n <- as.integer(names(miscoverage_rates)[[1]]) +
   length(miscoverage_rates[[1]]) - 1
@@ -61,7 +67,7 @@ plt <- ggplot(plt_data_lines) +
   scale_colour_brewer(palette = palette)
 
 
-ggsave(filename = 'figures/start_time_plot.pdf', plt,
+ggsave(filename = here(figures_dir, 'start_time_plot.pdf'), plt,
        width=plt_width, height=plt_height, units='cm')
 plt
 ```
@@ -69,8 +75,6 @@ plt
 # Confidence sequence widths
 
 ```{r}
-library(pracma)
-alpha <- 0.05
 t_opts <- c(100, 500, 1000, 5000)
 #t <- c(shape_points, logseq(1, 1000000, n = 10000))
 t <- 100:10000
@@ -105,7 +109,7 @@ plt <-
   theme(text = element_text(family="serif"), legend.position=c(0.75, 0.3)) +
   scale_colour_brewer(palette = palette)
 
-ggsave("figures/CI_CS_width.pdf", width = plt_width,
+ggsave(here(figures_dir, 'CI_CS_width.pdf'), width = plt_width,
        height = plt_height, units='cm')
 
 plt
@@ -115,7 +119,7 @@ plt
 # Unadjusted CSs vs CIs for the ATE in randomized experiments
 
 ```{r}
-load('../computations/cs_vs_ci/cs_vs_ci.RData')
+load(here(computations_dir, 'cs_vs_ci/cs_vs_ci.RData'))
 
 l_acs <- acs$l[start_time:n]
 u_acs <- acs$u[start_time:n]
@@ -123,14 +127,19 @@ u_acs <- acs$u[start_time:n]
 l_clt <- clt$l[start_time:n]
 u_clt <- clt$u[start_time:n]
 
-plot_df <- data.frame(t = rep(start_time:n, 4), 
-                      bound = c(l_acs, u_acs, l_clt, u_clt),
-                      upper_lower = c(rep('l', length(l_acs)),
-                                      rep('u', length(u_acs)),
-                                      rep('l', length(l_clt)),
-                                      rep('u', length(u_clt))),
-                      type = c(rep('CS [Thm 1]', 2*length(l_acs)),
-                               rep('CI [CLT]', 2*length(l_clt))))
+t = unique(round(logseq(x1 = start_time, x2 = n, n = 10000)))
+
+plot_df <- data.frame(t = rep(t, 4), 
+                      bound = c(l_acs[t - start_time + 1],
+                                u_acs[t - start_time + 1],
+                                l_clt[t - start_time + 1],
+                                u_clt[t - start_time + 1]),
+                      upper_lower = c(rep('l', length(t)),
+                                      rep('u', length(t)),
+                                      rep('l', length(t)),
+                                      rep('u', length(t))),
+                      type = c(rep('CS [Thm 1]', 2*length(t)),
+                               rep('CI [CLT]', 2*length(t))))
 
 plt_cs <- 
   ggplot() + 
@@ -153,7 +162,6 @@ plt_cs <-
 plt_cs
 # Miscoverage
 
-t = unique(round(logseq(x1 = start_time, x2 = n, n = 10000)))
 plot_df <- data.frame(t = rep(t, 2),
                       miscoverage = c(acs_miscoverage[t - start_time + 1],
                                       clt_miscoverage[t - start_time + 1]),
@@ -181,10 +189,9 @@ plt_miscoverage
 
 plt_both <- grid.arrange(plt_cs, plt_miscoverage, nrow=1)
 
-ggsave('figures/miscoverage.pdf', plot = plt_both,
+ggsave(here(figures_dir, 'miscoverage.pdf'), plot = plt_both,
        width=plt_width+2, height=plt_height-2, units='cm')
 
-  
 ```
 
 
@@ -195,7 +202,8 @@ ggsave('figures/miscoverage.pdf', plot = plt_both,
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load('../computations/randomized_experiment_SL/randomized_experiment_SL.RData')
+load(here(computations_dir,
+     'randomized_experiment_SL/randomized_experiment_SL.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -218,7 +226,8 @@ plt_cs <-
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='u',]) +
   geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
-  ylab('Confidence sequences for the\naverage treatment effect') + xlab('Time') +
+  ylab('Confidence sequences for the\naverage treatment effect') +
+  xlab('Time') +
   scale_x_log10(breaks = scales::trans_breaks("log10",
                                               function(x) 10^x),
                 labels = scales::trans_format("log10",
@@ -228,7 +237,7 @@ plt_cs <-
   theme(text = element_text(family="serif")) +
   scale_color_brewer(palette=palette)
 
-ggsave('figures/CS_randomized.pdf',
+ggsave(here(figures_dir, 'CS_randomized.pdf'),
        width=plt_width, height=plt_height, units='cm')
 plt_cs
 
@@ -239,7 +248,7 @@ plt_cs
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load('../computations/observational_study_SL/observational_study_SL.RData')
+load(here(computations_dir, 'observational_study_SL/observational_study_SL.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -272,7 +281,7 @@ plt_cs <-
   theme(text = element_text(family="serif")) +
   scale_color_brewer(palette=palette)
 
-ggsave('figures/CS_observational.pdf',
+ggsave(here(figures_dir, 'CS_observational.pdf'),
        width=plt_width, height=plt_height, units='cm')
 plt_cs
 
@@ -281,8 +290,7 @@ plt_cs
 ## Sepsis example
 
 ```{r}
-
-load('../computations/sepsis/sepsis_cs.RData')
+load(here(computations_dir, '/sepsis/sepsis_cs.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(cs_SL$l, cs_SL$u,
@@ -304,13 +312,15 @@ plt_cs <-
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='u',]) +
-  ylab('Estimated effect of high fluid intake on 30-day mortality') +
+  ylab('Estimated effect of high fluid\nintake on 30-day mortality') +
   xlab('Number of sepsis patients') +
+  ylim(-0.2, 0.2) +
+  xlim(1000, times[length(times)]) +
   theme_fn() + 
   theme(text = element_text(family="serif")) +
   scale_color_brewer(palette=palette)
 
-ggsave('figures/sepsis.pdf',
+ggsave(here(figures_dir, 'sepsis.pdf'),
        width=plt_width, height=plt_height, units='cm')
 plt_cs
 ```
