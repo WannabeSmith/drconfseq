@@ -1,6 +1,6 @@
 library(sequential.causal)
 library(parallel)
-start_times <- c(3, 5, 10, 15)
+start_times <- c(5, 10, 25, 50)
 n <- 10000
 num_repeats <- 10000
 n_cores <- parallel::detectCores()
@@ -30,8 +30,5 @@ for(start_time in start_times)
   miscoverage_rates[[as.character(start_time)]] <- miscoverage_rate
 }
 
-getwd()
-save(miscoverage_rates,
-     file = "./miscoverage_rates.RData")
-save(alpha,
-     file = "./alpha.RData")
+save(miscoverage_rates, alpha,
+     file = "./start_time.RData")
