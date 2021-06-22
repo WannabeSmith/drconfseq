@@ -1,11 +1,16 @@
 library(sequential.causal)
 library(parallel)
 library(pracma)
+library(dtplyr)
+library(dplyr, warn.conflicts=FALSE)
 
 ATE <- 1
 n = 10000
 d = 3
-X <- cbind(1, matrix(rnorm(n*d), nrow = n))
+X_mtx <- cbind(1, matrix(rnorm(n*d), nrow = n))
+X_data <- X_mtx %>%
+  as.data.frame() %>%
+  mutate(V1 = NULL)
 
 beta_mu <- c(1, -1, -2, 3)
 
@@ -22,8 +27,8 @@ prop_score_true <- function(x)
   pi = pi*0.6 + 0.2
 }
 
-reg_observed <- apply(X, MARGIN=1, FUN=reg_true)
-p <- apply(X, MARGIN=1, FUN=prop_score_true)
+reg_observed <- apply(X_mtx, MARGIN=1, FUN=reg_true)
+p <- apply(X_mtx, MARGIN=1, FUN=prop_score_true)
 treatment <- rbinom(n, 1, p)
 y <- reg_observed + treatment*ATE + rt(n, df=5)
 
@@ -56,12 +61,12 @@ n_cores <- detectCores()
 # confseq_ate or drate_variables_sequential can automatically)
 train_idx <- rbinom(n, p = 0.5, size = 1) == 1
 
-confseq_SL <- confseq_ate(y, X, treatment, regression_fn_1 = sl_reg_1,
+confseq_SL <- confseq_ate(y, X_data, treatment, regression_fn_1 = sl_reg_1,
                           regression_fn_0 = sl_reg_1,
                           propensity_score_fn = pi_fn,
                           train_idx = train_idx, t_opt = 250, alpha=alpha,
                           times=times, n_cores = n_cores, cross_fit = TRUE)
-confseq_glm <- confseq_ate(y, X, treatment, regression_fn_1 = glm_reg_1,
+confseq_glm <- confseq_ate(y, X_data, treatment, regression_fn_1 = glm_reg_1,
                            regression_fn_0 = glm_reg_1,
                            propensity_score_fn = get_SL_fn(SL.library="SL.glm",
                                                            family=binomial()),

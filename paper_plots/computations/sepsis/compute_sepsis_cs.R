@@ -33,7 +33,10 @@ clean_sepsis_data <- function(data)
       # Encode diabetes as factor
       diabetes = as.factor(diabetes),
       # Encode first_service as factor
-      first_service = as.factor(first_service)) %>%
+      first_service = as.factor(first_service),
+      # Encode qsofa and sirs as factors
+      qsofa = as.factor(qsofa),
+      sirs = as.factor(sirs)) %>%
     arrange(intime) %>%
     as.data.frame()
 }
@@ -46,7 +49,7 @@ sepsis = fread('./data/sepsis_patients.csv',
 y <- as.numeric(sepsis$mortality_30d)
 X <- model.matrix(~ age + gender + diabetes +
                     elixhauser_hospital + sofa +
-                    sirs,
+                    qsofa,
                   data = sepsis) %>%
   as.data.frame() %>%
   mutate(`(Intercept)` = NULL)
@@ -60,7 +63,7 @@ SL.library <- c("SL.earth",
                 "SL.xgboost")
 
 # times at which to compute the confidence sequences
-times <- unique(round(pracma::logseq(500, nrow(sepsis), n = 30)))
+times <- unique(round(pracma::logseq(1000, nrow(sepsis), n = 30)))
 t_opt = 1500
 
 cs_unadj <-
@@ -72,10 +75,12 @@ cs_unadj <-
 cs_glm <- confseq_ate(y = y,
                       X = X,
                       treatment = treatment,
-                      regression_fn_1 = get_SL_fn(SL.library = c('SL.glm'),
-                                                  family = binomial()),
-                      propensity_score_fn = get_SL_fn(SL.library = 'SL.glm',
-                                                      family = binomial()),
+                      regression_fn_1 =
+                        get_SL_fn(SL.library = c('SL.glm'),
+                                  family = binomial()),
+                      propensity_score_fn =
+                        get_SL_fn(SL.library = c('SL.glm'),
+                                  family = binomial()),
                       t_opt = t_opt,
                       times = times,
                       n_cores = 8,
