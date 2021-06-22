@@ -10,7 +10,7 @@
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @return The standard conjugate mixture margins (a real vector).
 #' @export
-std_conjmix_margin <- function(t, rho2, alpha=0.05/2)
+std_conjmix_margin <- function(t, rho2, alpha=0.05)
 {
   return(
     sqrt(
@@ -29,12 +29,17 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05/2)
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @return The corresponding value of $rho^2$ (positive real)
 #' @export
-best_rho2_exact <- function(t_opt, alpha_opt=0.05/2)
+best_rho2_exact <- function(t_opt, alpha_opt=0.05)
 {
-  # Need to adjust this hard-coded upper search bound of 10
-  optimize(function(rho2)
-  {std_conjmix_margin(t=t_opt, rho2=rho2, alpha=alpha_opt)},
-  interval=c(0, 10))$minimum
+  (-lambertWm1(-alpha_opt^2 * exp(alpha^2 - 1)) - 1) / t_opt
+}
+
+lambertWm1_approx <- function(x)
+{
+  # Based on Taylor approximation of Lambert W function
+  # https://en.wikipedia.org/wiki/Lambert_W_function#Asymptotic_expansions
+  # https://cs.uwaterloo.ca/research/tr/1993/03/W.pdf
+  log(-x) - log(-log(-x))
 }
 
 #' Get the best value of $rho^2$ for a time t_opt (approximate optimization)
@@ -46,10 +51,9 @@ best_rho2_exact <- function(t_opt, alpha_opt=0.05/2)
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @return The corresponding value of $rho^2$ (positive real)
 #' @export
-best_rho2_approx <- function(t_opt, alpha_opt=0.05/2)
+best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 {
-  (2*log(1/alpha_opt) +
-     log(1 + 2*log(1/alpha_opt))) / t_opt
+  (-lambertWm1_approx(-alpha_opt^2 * exp(alpha^2 - 1)) - 1) / t_opt
 }
 
 #' LIL standard (unit-variance) margin
@@ -106,11 +110,11 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 
   if (LIL)
   {
-    std_margin <- std_LIL_margin(t=t, alpha=alpha/2)
+    std_margin <- std_LIL_margin(t=t, alpha=alpha)
   } else
   {
-    rho2 <- best_rho2_approx(t_opt=t_opt, alpha_opt=alpha/2)
-    std_margin <- std_conjmix_margin(t=t, rho2=rho2, alpha=alpha/2)
+    rho2 <- best_rho2_exact(t_opt=t_opt, alpha_opt=alpha)
+    std_margin <- std_conjmix_margin(t=t, rho2=rho2, alpha=alpha)
   }
 
   margin <- sqrt(var)*std_margin
