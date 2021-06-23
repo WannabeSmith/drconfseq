@@ -12,6 +12,10 @@
 #' @export
 std_conjmix_margin <- function(t, rho2, alpha=0.05)
 {
+  assert_that(all(t >= 1))
+  assert_that(rho2 > 0)
+  assert_that(alpha > 0 && alpha < 1)
+
   return(
     sqrt(
       2*(t*rho2 + 1)*
@@ -24,7 +28,7 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 #'
 #' Function signature: (int, real) -> real
 #'
-#' @importFrom lamW lambertWm1
+#' @importFrom lamW lambertWm1 lambertW0
 #' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
 #' @param alpha The significance level (a (0, 1)-valued real).
@@ -32,7 +36,10 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 #' @export
 best_rho2_exact <- function(t_opt, alpha_opt=0.05)
 {
-  (-lambertWm1(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt
+  assert_that(t_opt >= 1)
+  assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
+
+  return((-lambertWm1(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt)
 }
 
 lambertWm1_approx <- function(x)
@@ -40,7 +47,8 @@ lambertWm1_approx <- function(x)
   # Based on Taylor approximation of Lambert W function
   # https://en.wikipedia.org/wiki/Lambert_W_function#Asymptotic_expansions
   # https://cs.uwaterloo.ca/research/tr/1993/03/W.pdf
-  log(-x) - log(-log(-x))
+  assert_that(x >= -1/exp(1) && x < 0)
+  return(log(-x) - log(-log(-x)))
 }
 
 #' Get the best value of $rho^2$ for a time t_opt (approximate optimization)
@@ -54,7 +62,10 @@ lambertWm1_approx <- function(x)
 #' @export
 best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 {
-  (-lambertWm1_approx(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt
+  assert_that(t_opt >= 1)
+  assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
+
+  return((-lambertWm1_approx(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt)
 }
 
 #' LIL standard (unit-variance) margin
@@ -68,6 +79,9 @@ best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 #' @export
 std_LIL_margin <- function(t, alpha=0.05/2)
 {
+  assert_that(all(t >= 1))
+  assert_that(alpha > 0 && alpha < 1)
+
   return(
     1.7 *
       sqrt(log(log(2*t)) + 0.72*log(5.2 / alpha)) /
@@ -95,6 +109,9 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
                                var=NULL, LIL=FALSE,
                                return_all_times=TRUE)
 {
+  assert_that(t_opt >= 1)
+  assert_that(alpha > 0 && alpha < 1)
+
   # If the user wants results for each time, use time from 1 to n.
   # Otherwise, just use time n.
   if(return_all_times)
@@ -147,6 +164,10 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 #' @export
 plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
 {
+  assert_that(all(t_opts >= 1))
+  assert_that(all(t >= 1))
+  assert_that(alpha > 0 && alpha < 1)
+
   if(log_scale)
   {
     shape_points <- unique(round(logseq(min(t), max(t), n = 6)))
