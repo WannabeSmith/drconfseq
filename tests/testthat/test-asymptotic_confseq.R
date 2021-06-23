@@ -65,3 +65,17 @@ test_that("asymptotic_confseq has valid coverage", {
   # confidence interval is less than alpha
   expect_lt(coverage_test$conf.int[1], alpha)
 })
+
+test_that("plot_cs_shape does not throw an error", {
+  expect_silent(plot_cs_shape(t_opts = c(1, 10, 50, 500, 1000),
+                              t = 1:10000, alpha = 0.05, log_scale = FALSE))
+  # Should work even if only one t_opts is passed
+  expect_silent(plot_cs_shape(t_opts = c(1),
+                              t = 1:10000, alpha = 0.05, log_scale = FALSE))
+  # Should work even if only one t is passed
+  expect_silent(plot_cs_shape(t_opts = c(1, 10, 50, 500, 1000),
+                              t = 1, alpha = 0.05, log_scale = FALSE))
+  # Make sure log_scale = TRUE also works
+  expect_silent(plot_cs_shape(t_opts = c(1, 10, 50, 500, 1000),
+                              t = 1:10000, alpha = 0.05, log_scale = TRUE))
+})
