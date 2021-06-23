@@ -36,6 +36,16 @@ evaluation covariates, `newX`.}
 not receive treatment. If left NULL, this will be
 set to the same function as `regression_fn_1`.}
 
+\item{propensity_score_fn}{A function which predicts the propensity score for
+each subject. Similar to `regression_fn_1`, this
+function takes three arguments: `y`, `X`, and
+`newX`,
+the training treatment indicator (1 if treatment,
+0 if control), the training covariates, and the
+evaluation covariates. The function outputs the
+predicted propensity score given the evaluation
+covariates, `newX`.}
+
 \item{train_idx}{The indices indicating the training split for the sample
 splitting algorithm. If left NULL, the training index will
 be assigned randomly with probability 1/2.}
@@ -47,23 +57,12 @@ only be computed at time n.}
 
 \item{n_cores}{The number of cores to use for parallelization.}
 
-\item{propensity_score}{A function which predicts the propensity score for
-each subject. Similar to `regression_fn_1`, this
-function takes three arguments: `y`, `X`, and `newX`,
-the training treatment indicator (1 if treatment, 0
-if control), the training covariates, and the
-evaluation covariates. The function outputs the
-predicted propensity score given the evaluation
-covariates, `newX`.}
+\item{cross_fit}{Should cross-fitting be used? (boolean)}
 }
 \value{
 A list of doubly-robust variable vectors, one vector for each time
         requested in `times`.
 }
 \description{
-Function signature: (real, data.frame, int,
-                     (real, data.frame, data.frame -> real),
-                     (real, data.frame, data.frame -> real),
-                     (int, data.frame, data.frame -> real),
-                     int, int) -> [real]
+Doubly-robust variables at many timepoints for binary treatment given nuisance function estimators.
 }

@@ -10,11 +10,11 @@ best_rho2_exact(t_opt, alpha_opt = 0.05)
 \item{t_opt}{The time for which $rho^2$
 should be optimized (a positive integer)}
 
-\item{alpha}{The significance level (a (0, 1)-valued real).}
+\item{alpha_opt}{The significance level (a (0, 1)-valued real).}
 }
 \value{
 The corresponding value of $rho^2$ (positive real)
 }
 \description{
-Function signature: (int, real) -> real
+Get the best value of $rho^2$ for a time t_opt (exact optimization)
 }

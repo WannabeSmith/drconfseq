@@ -25,6 +25,5 @@ Function which takes three arguments `y`, `X`, and `newX`, the
         for the covariates `newX`.
 }
 \description{
-Function signature: (char, family ->
-                     (real, data.frame, data.frame -> real))
+Get the Super Learner function given a library of SuperLearner algorithms.
 }

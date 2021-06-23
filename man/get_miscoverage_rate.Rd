@@ -38,6 +38,5 @@ A vector of (increasing) miscoverage rates at each time
         (a (0, 1)-valued vector).
 }
 \description{
-Function signature: ((() -> real), (real -> (real, real)),
-                     int, int, real, int) -> (real, real)
+Get the empirical miscoverage rate of a confidence sequence
 }

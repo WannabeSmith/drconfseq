@@ -24,6 +24,8 @@ asymptotic_confseq(
 If left `NULL`, then the empirical variance of `x` will be
 taken (positive real-valued vector or `NULL`).}
 
+\item{LIL}{Use margin with law of the iterated logarithm rate? (boolean)}
+
 \item{return_all_times}{Should the CS be returned at
 every time point? (boolean)}
 }
@@ -33,5 +35,5 @@ A list containing the following vectors: \cr
 \item{u}{The upper confidence sequence (a real vector).}
 }
 \description{
-Function signature: (real, real, real, real, boolean) -> (real, real)
+Asymptotic confidence sequence
 }

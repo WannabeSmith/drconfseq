@@ -38,6 +38,16 @@ evaluation covariates, `newX`.}
 not receive treatment. If left NULL, this will be
 set to the same function as `regression_fn_1`.}
 
+\item{propensity_score_fn}{A function which predicts the propensity score for
+each subject. Similar to `regression_fn_1`, this
+function takes three arguments: `y`, `X`, and
+`newX`,
+the training treatment indicator (1 if treatment,
+0 if control), the training covariates, and the
+evaluation covariates. The function outputs the
+predicted propensity score given the evaluation
+covariates, `newX`.}
+
 \item{t_opt}{Time for which the CS should be tightest}
 
 \item{train_idx}{The indices indicating the training split for the sample
@@ -53,22 +63,11 @@ only be computed at time n.}
 
 \item{n_cores}{The number of cores to use for parallelization.}
 
-\item{propensity_score}{A function which predicts the propensity score for
-each subject. Similar to `regression_fn_1`, this
-function takes three arguments: `y`, `X`, and `newX`,
-the training treatment indicator (1 if treatment, 0
-if control), the training covariates, and the
-evaluation covariates. The function outputs the
-predicted propensity score given the evaluation
-covariates, `newX`.}
+\item{cross_fit}{Should cross-fitting be used? (boolean)}
 }
 \value{
 Data frame containing the lower and upper confidence sequences.
 }
 \description{
-Function signature: (real, data.frame, int,
-                     (real, data.frame, data.frame -> real),
-                     (real, data.frame, data.frame -> real),
-                     (int, data.frame, data.frame -> real),
-                     real, real, int, int) -> data.frame
+Confidence sequence for the average treatment effect.
 }

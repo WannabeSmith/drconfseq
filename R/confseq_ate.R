@@ -4,12 +4,8 @@ require(parallel)
 
 #' Confidence sequence for the average treatment effect.
 #'
-#' Function signature: (real, data.frame, int,
-#'                      (real, data.frame, data.frame -> real),
-#'                      (real, data.frame, data.frame -> real),
-#'                      (int, data.frame, data.frame -> real),
-#'                      real, real, int, int) -> data.frame
 #' @importFrom parallel mclapply
+#' @importFrom stats binomial
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)
 #' @param treatment Whether the subject received treatment
@@ -23,14 +19,15 @@ require(parallel)
 #' @param regression_fn_0 The same as `regression_fn_1` but for those who did
 #'                        not receive treatment. If left NULL, this will be
 #'                        set to the same function as `regression_fn_1`.
-#' @param propensity_score A function which predicts the propensity score for
-#'                         each subject. Similar to `regression_fn_1`, this
-#'                         function takes three arguments: `y`, `X`, and `newX`,
-#'                         the training treatment indicator (1 if treatment, 0
-#'                         if control), the training covariates, and the
-#'                         evaluation covariates. The function outputs the
-#'                         predicted propensity score given the evaluation
-#'                         covariates, `newX`.
+#' @param propensity_score_fn A function which predicts the propensity score for
+#'                            each subject. Similar to `regression_fn_1`, this
+#'                            function takes three arguments: `y`, `X`, and
+#'                            `newX`,
+#'                            the training treatment indicator (1 if treatment,
+#'                            0 if control), the training covariates, and the
+#'                            evaluation covariates. The function outputs the
+#'                            predicted propensity score given the evaluation
+#'                            covariates, `newX`.
 #' @param train_idx The indices indicating the training split for the sample
 #'                  splitting algorithm. If left NULL, the training index will
 #'                  be assigned randomly with probability 1/2.
@@ -41,6 +38,7 @@ require(parallel)
 #'              a single time (integer). If left NULL, the variables will
 #'              only be computed at time n.
 #' @param n_cores The number of cores to use for parallelization.
+#' @param cross_fit Should cross-fitting be used? (boolean)
 #' @return Data frame containing the lower and upper confidence sequences.
 #' @export
 confseq_ate <- function(y, X, treatment,
@@ -83,6 +81,16 @@ confseq_ate <- function(y, X, treatment,
 }
 
 #' Unadjusted estimator
+#' @param y The measured outcome (a real vector).
+#' @param treatment Whether the subject received treatment
+#'                  (a boolean vector or 0/1-valued integer vector).
+#' @param propensity_score The propensity scores ((0, 1)-valued reals)
+#' @param t_opt Time for which the CS should be tightest
+#' @param alpha Confidence level between 0 and 1 (real)
+#' @param times The times for which the doubly-robust variables should be
+#'              calculated. Can be a vector of times (an integer vector) or
+#'              a single time (integer). If left NULL, the variables will
+#'              only be computed at time n.
 #'
 #' @export
 confseq_ate_unadjusted <- function(y, treatment,

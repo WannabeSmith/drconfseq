@@ -16,7 +16,9 @@ Imports:
   purrr,
   dplyr,
   lamW,
-  scales
+  scales,
+  pracma,
+  rlang
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
