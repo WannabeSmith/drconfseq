@@ -16,7 +16,7 @@ Imports:
   purrr,
   dplyr,
   lamW
-License: What license is it under?
+License: BSD 3-Clause | LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
