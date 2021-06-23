@@ -4,11 +4,6 @@ require(parallel)
 
 #' Confidence sequence for the average treatment effect.
 #'
-#' Function signature: (real, data.frame, int,
-#'                      (real, data.frame, data.frame -> real),
-#'                      (real, data.frame, data.frame -> real),
-#'                      (int, data.frame, data.frame -> real),
-#'                      real, real, int, int) -> data.frame
 #' @importFrom parallel mclapply
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)

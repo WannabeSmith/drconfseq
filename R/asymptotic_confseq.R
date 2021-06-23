@@ -2,8 +2,6 @@
 
 #' Conjugate mixture standard (unit-variance) margin
 #'
-#' Function signature: (int, real, real) -> real
-#'
 #' @param t The times at which to product the margin
 #'          (a positive integer vector).
 #' @param rho2 The tuning parameter (a positive real).
@@ -21,8 +19,6 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 }
 
 #' Get the best value of $rho^2$ for a time t_opt (exact optimization)
-#'
-#' Function signature: (int, real) -> real
 #'
 #' @importFrom lamW lambertWm1
 #' @param t_opt The time for which $rho^2$
@@ -45,8 +41,6 @@ lambertWm1_approx <- function(x)
 
 #' Get the best value of $rho^2$ for a time t_opt (approximate optimization)
 #'
-#' Function signature: (int, real) -> real
-#'
 #' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
 #' @param alpha The significance level (a (0, 1)-valued real).
@@ -58,8 +52,6 @@ best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 }
 
 #' LIL standard (unit-variance) margin
-#'
-#' Function signature: (int, real) -> real
 #'
 #' @param t The times at which to product the margin
 #'          (a positive integer vector).
@@ -76,8 +68,6 @@ std_LIL_margin <- function(t, alpha=0.05/2)
 }
 
 #' Asymptotic confidence sequence
-#'
-#' Function signature: (real, real, real, real, boolean) -> (real, real)
 #'
 #' @param x The observed data points (a real vector).
 #' @param alpha The significance level (a (0, 1)-valued real).

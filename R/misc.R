@@ -39,8 +39,6 @@ naive_std_margin <- function(t, alpha)
 
 #' Naive confidence interval
 #'
-#' Function signature: (real, real, real, boolean) -> (real, real)
-#'
 #' @param x The observed data points (a real vector).
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @param var The known or estimated variance of the observations, `x`.
@@ -82,9 +80,6 @@ naive_confidence_intervals <- function(x, alpha=0.05,
 }
 
 #' Get the empirical miscoverage rate of a confidence sequence
-#'
-#' Function signature: ((() -> real), (real -> (real, real)),
-#'                      int, int, real, int) -> (real, real)
 #'
 #' @param data_generator_fn A function which generates a vector of data
 #'                          (() -> real)

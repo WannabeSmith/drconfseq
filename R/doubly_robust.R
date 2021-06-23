@@ -3,7 +3,6 @@
 
 #' Doubly-robust pseudo-outcome for binary treatment given nuisance function estimates.
 #'
-#' Function signature: (real, real, real, real, int) -> real
 #' @param y The measured outcome (a real vector).
 #' @param reg_1 The predicted outcome in the treatment group
 #'                     (a real vector).
@@ -37,11 +36,6 @@ pseudo_outcome_abstract <- function(y, reg_1,
 
 #' Doubly-robust variables at many timepoints for binary treatment given nuisance function estimators.
 #'
-#' Function signature: (real, data.frame, int,
-#'                      (real, data.frame, data.frame -> real),
-#'                      (real, data.frame, data.frame -> real),
-#'                      (int, data.frame, data.frame -> real),
-#'                      int, int) -> [real]
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)
 #' @param treatment Whether the subject received treatment
@@ -155,7 +149,6 @@ pseudo_outcome_sequential <- function(y, X, treatment,
 
 #' Generic doubly-robust estimator for binary treatment
 #'
-#' Function signature: (real, real, real, real, int) -> real
 #' @param y The measured outcome (a real number).
 #' @param reg_1 The predicted outcome in the treatment group
 #'                     (a real vector).
@@ -181,7 +174,6 @@ pseudo_outcome_estimator <- function(y, reg_1,
 
 #' Variance of the doubly robust observations
 #'
-#' Function signature: (real, real, real, real, int) -> real
 #' @param y The measured outcome (a real number).
 #' @param reg_1 The predicted outcome in the treatment group
 #'                     (a real vector).
@@ -209,8 +201,6 @@ pseudo_outcome_variance <- function(y, reg_1, reg_0,
 
 #' Get the Super Learner function given a library of SuperLearner algorithms.
 #'
-#' Function signature: (char, family ->
-#'                      (real, data.frame, data.frame -> real))
 #' @importFrom SuperLearner SuperLearner
 #' @param SL.library Character vector containing SuperLearner algorithm names.
 #' @param family The family for the algorithm. If estimating the propensity
