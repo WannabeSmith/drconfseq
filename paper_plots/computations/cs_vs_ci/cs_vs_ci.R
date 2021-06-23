@@ -24,18 +24,20 @@ acs_fn <- function(y){ asymptotic_confseq(x=y, t_opt=t_opt,
                                           return_all_times=TRUE) }
 clt_fn <- function(y){ naive_confidence_intervals(x=y, return_all_times = TRUE)}
 
-acs_miscoverage <- get_miscoverage_rate(data_generator_fn = data_generator_fn,
-                                        conf_set_fn = acs_fn,
-                                        times = start_time:n,
-                                        num_repeats = 1000,
-                                        mu = p_1-p_2,
-                                        n_cores = parallel::detectCores())
-clt_miscoverage <- get_miscoverage_rate(data_generator_fn = data_generator_fn,
-                                        conf_set_fn = clt_fn,
-                                        times = start_time:n,
-                                        num_repeats = 1000,
-                                        mu = p_1-p_2,
-                                        n_cores = parallel::detectCores())
+acs_miscoverage <-
+  get_cumul_miscoverage_rate(data_generator_fn = data_generator_fn,
+                             conf_set_fn = acs_fn,
+                             times = start_time:n,
+                             num_repeats = 1000,
+                             mu = p_1-p_2,
+                             n_cores = parallel::detectCores())
+clt_miscoverage <-
+  get_cumul_miscoverage_rate(data_generator_fn = data_generator_fn,
+                             conf_set_fn = clt_fn,
+                             times = start_time:n,
+                             num_repeats = 1000,
+                             mu = p_1-p_2,
+                             n_cores = parallel::detectCores())
 
 y <- data_generator_fn()
 acs <- acs_fn(y)

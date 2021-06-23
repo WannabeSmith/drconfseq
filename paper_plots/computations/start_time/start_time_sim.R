@@ -22,10 +22,10 @@ for(start_time in start_times)
   }
 
   miscoverage_rate <-
-    get_miscoverage_rate(data_generator_fn = data_generator_fn,
-                         conf_set_fn = conf_set_fn,
-                         times = start_time:n,
-                         num_repeats = num_repeats, n_cores = n_cores)
+    get_cumul_miscoverage_rate(data_generator_fn = data_generator_fn,
+                               conf_set_fn = conf_set_fn,
+                               times = start_time:n,
+                               num_repeats = num_repeats, n_cores = n_cores)
 
   miscoverage_rates[[as.character(start_time)]] <- miscoverage_rate
 }
