@@ -10,11 +10,17 @@
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @return The standard conjugate mixture margins (a real vector).
 #' @export
+#' @examples
+#' t <- 10:10000
+#' rho2 <- 0.1
+#' margin <- std_conjmix_margin(t, rho2)
+#'
+#' ggplot2::ggplot() + ggplot2::geom_line(ggplot2::aes(t, margin))
 std_conjmix_margin <- function(t, rho2, alpha=0.05)
 {
-  assert_that(all(t >= 1))
-  assert_that(rho2 > 0)
-  assert_that(alpha > 0 && alpha < 1)
+  assertthat::assert_that(all(t >= 1))
+  assertthat::assert_that(rho2 > 0)
+  assertthat::assert_that(alpha > 0 && alpha < 1)
 
   return(
     sqrt(
@@ -36,8 +42,8 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 #' @export
 best_rho2_exact <- function(t_opt, alpha_opt=0.05)
 {
-  assert_that(t_opt >= 1)
-  assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
+  assertthat::assert_that(t_opt >= 1)
+  assertthat::assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
 
   return((-lambertWm1(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt)
 }
@@ -47,7 +53,7 @@ lambertWm1_approx <- function(x)
   # Based on Taylor approximation of Lambert W function
   # https://en.wikipedia.org/wiki/Lambert_W_function#Asymptotic_expansions
   # https://cs.uwaterloo.ca/research/tr/1993/03/W.pdf
-  assert_that(x >= -1/exp(1) && x < 0)
+  assertthat::assert_that(x >= -1/exp(1) && x < 0)
   return(log(-x) - log(-log(-x)))
 }
 
@@ -62,8 +68,8 @@ lambertWm1_approx <- function(x)
 #' @export
 best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 {
-  assert_that(t_opt >= 1)
-  assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
+  assertthat::assert_that(t_opt >= 1)
+  assertthat::assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
 
   return((-lambertWm1_approx(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt)
 }
@@ -79,8 +85,8 @@ best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 #' @export
 std_LIL_margin <- function(t, alpha=0.05/2)
 {
-  assert_that(all(t >= 1))
-  assert_that(alpha > 0 && alpha < 1)
+  assertthat::assert_that(all(t >= 1))
+  assertthat::assert_that(alpha > 0 && alpha < 1)
 
   return(
     1.7 *
@@ -109,8 +115,8 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
                                var=NULL, LIL=FALSE,
                                return_all_times=TRUE)
 {
-  assert_that(t_opt >= 1)
-  assert_that(alpha > 0 && alpha < 1)
+  assertthat::assert_that(t_opt >= 1)
+  assertthat::assert_that(alpha > 0 && alpha < 1)
 
   # If the user wants results for each time, use time from 1 to n.
   # Otherwise, just use time n.
@@ -164,9 +170,9 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 #' @export
 plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
 {
-  assert_that(all(t_opts >= 1))
-  assert_that(all(t >= 1))
-  assert_that(alpha > 0 && alpha < 1)
+  assertthat::assert_that(all(t_opts >= 1))
+  assertthat::assert_that(all(t >= 1))
+  assertthat::assert_that(alpha > 0 && alpha < 1)
 
   if(log_scale)
   {

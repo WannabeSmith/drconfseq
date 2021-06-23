@@ -15,7 +15,8 @@ Imports:
   ggplot2,
   purrr,
   dplyr,
-  lamW
+  lamW,
+  assertthat
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
