@@ -18,9 +18,8 @@ cumul_mean <- function(x)
 #' @export
 cumul_var <- function(x)
 {
-  mu_t <- cumul_mean(x)
-  t <- seq(1, length(x))
-  sigma2_t <- cumsum((x - mu_t)^2) / (t-1)
+  t <- 1:length(x)
+  sigma2_t <- (cumul_mean(x^2) - cumul_mean(x)^2)*t/(t-1)
 
   return(sigma2_t)
 }
