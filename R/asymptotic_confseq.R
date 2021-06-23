@@ -2,8 +2,6 @@
 
 #' Conjugate mixture standard (unit-variance) margin
 #'
-#' Function signature: (int, real, real) -> real
-#'
 #' @param t The times at which to product the margin
 #'          (a positive integer vector).
 #' @param rho2 The tuning parameter (a positive real).
@@ -32,12 +30,10 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 
 #' Get the best value of $rho^2$ for a time t_opt (exact optimization)
 #'
-#' Function signature: (int, real) -> real
-#'
 #' @importFrom lamW lambertWm1 lambertW0
 #' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
-#' @param alpha The significance level (a (0, 1)-valued real).
+#' @param alpha_opt The significance level (a (0, 1)-valued real).
 #' @return The corresponding value of $rho^2$ (positive real)
 #' @export
 best_rho2_exact <- function(t_opt, alpha_opt=0.05)
@@ -59,11 +55,9 @@ lambertWm1_approx <- function(x)
 
 #' Get the best value of $rho^2$ for a time t_opt (approximate optimization)
 #'
-#' Function signature: (int, real) -> real
-#'
 #' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
-#' @param alpha The significance level (a (0, 1)-valued real).
+#' @param alpha_opt The significance level (a (0, 1)-valued real).
 #' @return The corresponding value of $rho^2$ (positive real)
 #' @export
 best_rho2_approx <- function(t_opt, alpha_opt=0.05)
@@ -75,8 +69,6 @@ best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 }
 
 #' LIL standard (unit-variance) margin
-#'
-#' Function signature: (int, real) -> real
 #'
 #' @param t The times at which to product the margin
 #'          (a positive integer vector).
@@ -97,14 +89,13 @@ std_LIL_margin <- function(t, alpha=0.05/2)
 
 #' Asymptotic confidence sequence
 #'
-#' Function signature: (real, real, real, real, boolean) -> (real, real)
-#'
 #' @param x The observed data points (a real vector).
 #' @param alpha The significance level (a (0, 1)-valued real).
 #' @param t_opt The time for which the confidence sequence should be tightest.
 #' @param var The known or estimated variance of the observations, `x`.
 #'            If left `NULL`, then the empirical variance of `x` will be
 #'            taken (positive real-valued vector or `NULL`).
+#' @param LIL Use margin with law of the iterated logarithm rate? (boolean)
 #' @param return_all_times Should the CS be returned at
 #'                         every time point? (boolean)
 #' @return A list containing the following vectors: \cr
@@ -153,11 +144,13 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 
 #' Plot ratio of confidence sequence to confidence interval widths
 #'
+#' @importFrom rlang .data
 #' @importFrom purrr map reduce
 #' @importFrom ggplot2 ggplot geom_line geom_point aes guides
 #'             ylab theme_minimal theme scale_x_log10 annotation_logticks
 #'             guide_legend element_text
 #' @importFrom dplyr "%>%"
+#' @importFrom pracma logseq
 #' @param t_opts The times for which to optimize the confidence sequence
 #'               (vector of positive integers)
 #' @param t The times to plot the confidence sequence
@@ -196,9 +189,10 @@ plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
 
   plt <-
     ggplot(plt_data_lines) +
-    geom_line(aes(x = Time, y = Ratio, color = t_opt)) +
+    geom_line(aes(x = .data$Time, y = .data$Ratio, color = .data$t_opt)) +
     geom_point(data = plt_data_points,
-               aes(x = Time, y = Ratio, color = t_opt, shape = t_opt), size=2) +
+               aes(x = .data$Time, y = .data$Ratio, color = .data$t_opt,
+                   shape = .data$t_opt), size=2) +
     guides(color = guide_legend(title = "t optimized"),
            shape = guide_legend(title = "t optimized")) +
 
@@ -212,7 +206,9 @@ plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
       scale_x_log10(breaks = scales::trans_breaks("log10",
                                                   function(x) 10^x),
                     labels = scales::trans_format("log10",
-                                                  scales::math_format(10^.x))) +
+                                                  scales::math_format(
+                                                    10^.data$.x)
+                                                  )) +
       annotation_logticks(colour = "grey", sides = "b")
   }
 

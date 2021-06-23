@@ -26,5 +26,5 @@ The doubly-robust variables at each time
         (a vector of real numbers)
 }
 \description{
-Function signature: (real, real, real, real, int) -> real
+Doubly-robust pseudo-outcome for binary treatment given nuisance function estimates.
 }

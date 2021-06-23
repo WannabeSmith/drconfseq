@@ -27,6 +27,7 @@ cumul_var <- function(x)
 
 #' Confidence interval margin for the mean of unit variance Gaussians
 #'
+#' @importFrom stats qnorm
 #' @param t The times at which the margin will be evaluated
 #' @param alpha The (0, 1)-valued confidence level
 #'
@@ -38,8 +39,6 @@ naive_std_margin <- function(t, alpha)
 }
 
 #' Naive confidence interval
-#'
-#' Function signature: (real, real, real, boolean) -> (real, real)
 #'
 #' @param x The observed data points (a real vector).
 #' @param alpha The significance level (a (0, 1)-valued real).
@@ -82,9 +81,6 @@ naive_confidence_intervals <- function(x, alpha=0.05,
 }
 
 #' Get the empirical miscoverage rate of a confidence sequence
-#'
-#' Function signature: ((() -> real), (real -> (real, real)),
-#'                      int, int, real, int) -> (real, real)
 #'
 #' @param data_generator_fn A function which generates a vector of data
 #'                          (() -> real)

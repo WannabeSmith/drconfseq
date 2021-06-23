@@ -18,7 +18,7 @@ std_conjmix_margin(t, rho2, alpha = 0.05)
 The standard conjugate mixture margins (a real vector).
 }
 \description{
-Function signature: (int, real, real) -> real
+Conjugate mixture standard (unit-variance) margin
 }
 \examples{
 t <- 10:10000

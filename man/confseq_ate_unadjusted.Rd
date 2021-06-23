@@ -13,6 +13,23 @@ confseq_ate_unadjusted(
   times = NULL
 )
 }
+\arguments{
+\item{y}{The measured outcome (a real vector).}
+
+\item{treatment}{Whether the subject received treatment
+(a boolean vector or 0/1-valued integer vector).}
+
+\item{propensity_score}{The propensity scores ((0, 1)-valued reals)}
+
+\item{t_opt}{Time for which the CS should be tightest}
+
+\item{alpha}{Confidence level between 0 and 1 (real)}
+
+\item{times}{The times for which the doubly-robust variables should be
+calculated. Can be a vector of times (an integer vector) or
+a single time (integer). If left NULL, the variables will
+only be computed at time n.}
+}
 \description{
 Unadjusted estimator
 }

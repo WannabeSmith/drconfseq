@@ -16,8 +16,11 @@ Imports:
   purrr,
   dplyr,
   lamW,
+  scales,
+  pracma,
+  rlang,
   assertthat
-License: What license is it under?
+License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

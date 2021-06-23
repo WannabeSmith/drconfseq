@@ -25,5 +25,5 @@ pseudo_outcome_estimator(y, reg_1, reg_0, propensity_score, treatment)
 The doubly-robust estimator at each time (a vector of real numbers)
 }
 \description{
-Function signature: (real, real, real, real, int) -> real
+Generic doubly-robust estimator for binary treatment
 }

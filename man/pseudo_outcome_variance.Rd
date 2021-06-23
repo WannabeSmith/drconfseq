@@ -26,5 +26,5 @@ The variance of the doubly-robust observations
         (a vector of real numbers)
 }
 \description{
-Function signature: (real, real, real, real, int) -> real
+Variance of the doubly robust observations
 }
