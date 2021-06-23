@@ -4,7 +4,7 @@
 \alias{std_conjmix_margin}
 \title{Conjugate mixture standard (unit-variance) margin}
 \usage{
-std_conjmix_margin(t, rho2, alpha = 0.05/2)
+std_conjmix_margin(t, rho2, alpha = 0.05)
 }
 \arguments{
 \item{t}{The times at which to product the margin

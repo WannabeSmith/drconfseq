@@ -4,7 +4,7 @@
 \alias{best_rho2_exact}
 \title{Get the best value of $rho^2$ for a time t_opt (exact optimization)}
 \usage{
-best_rho2_exact(t_opt, alpha_opt = 0.05/2)
+best_rho2_exact(t_opt, alpha_opt = 0.05)
 }
 \arguments{
 \item{t_opt}{The time for which $rho^2$

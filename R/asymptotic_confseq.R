@@ -24,6 +24,7 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 #'
 #' Function signature: (int, real) -> real
 #'
+#' @importFrom lamW lambertWm1
 #' @param t_opt The time for which $rho^2$
 #'              should be optimized (a positive integer)
 #' @param alpha The significance level (a (0, 1)-valued real).
@@ -31,7 +32,7 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 #' @export
 best_rho2_exact <- function(t_opt, alpha_opt=0.05)
 {
-  (-lambertWm1(-alpha_opt^2 * exp(alpha^2 - 1)) - 1) / t_opt
+  (-lambertWm1(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt
 }
 
 lambertWm1_approx <- function(x)
@@ -53,7 +54,7 @@ lambertWm1_approx <- function(x)
 #' @export
 best_rho2_approx <- function(t_opt, alpha_opt=0.05)
 {
-  (-lambertWm1_approx(-alpha_opt^2 * exp(alpha^2 - 1)) - 1) / t_opt
+  (-lambertWm1_approx(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt
 }
 
 #' LIL standard (unit-variance) margin
@@ -133,6 +134,7 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 #' @importFrom ggplot2 ggplot geom_line geom_point aes guides
 #'             ylab theme_minimal theme scale_x_log10 annotation_logticks
 #'             guide_legend element_text
+#' @importFrom dplyr "%>%"
 #' @param t_opts The times for which to optimize the confidence sequence
 #'               (vector of positive integers)
 #' @param t The times to plot the confidence sequence
@@ -145,7 +147,6 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 #' @export
 plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
 {
-  alpha <- 0.05
   if(log_scale)
   {
     shape_points <- unique(round(logseq(min(t), max(t), n = 6)))
@@ -157,7 +158,7 @@ plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
   plt_data_lines <- t_opts %>% map(function(t_opt){
     acs <- std_conjmix_margin(t = t,
                               rho2 = best_rho2_exact(t_opt),
-                              alpha=alpha)
+                              alpha = alpha)
     naive <- naive_std_margin(t = t, alpha = alpha)
     data.frame(Time = t,
                Ratio = naive / acs,
@@ -185,7 +186,7 @@ plot_cs_shape <- function(t_opts, t, alpha = 0.05, log_scale = FALSE)
                                                   function(x) 10^x),
                     labels = scales::trans_format("log10",
                                                   scales::math_format(10^.x))) +
-      annotation_logticks(colour = "grey", side = "b")
+      annotation_logticks(colour = "grey", sides = "b")
   }
 
   plt
