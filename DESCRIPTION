@@ -15,7 +15,8 @@ Imports:
   ggplot2,
   purrr,
   dplyr,
-  lamW
+  lamW,
+  scales
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
