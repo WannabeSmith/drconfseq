@@ -13,7 +13,9 @@ Imports:
   stats,
   parallel,
   ggplot2,
-  purrr
+  purrr,
+  dplyr,
+  lamW
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
