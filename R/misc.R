@@ -80,7 +80,7 @@ naive_confidence_intervals <- function(x, alpha=0.05,
               'u' = mu_hat_t + margin))
 }
 
-#' Get the empirical miscoverage rate of a confidence sequence
+#' Get the cumulative empirical miscoverage rate of a confidence sequence
 #'
 #' @param data_generator_fn A function which generates a vector of data
 #'                          (() -> real)
@@ -98,9 +98,9 @@ naive_confidence_intervals <- function(x, alpha=0.05,
 #' @return A vector of (increasing) miscoverage rates at each time
 #'         (a (0, 1)-valued vector).
 #' @export
-get_miscoverage_rate <- function(data_generator_fn, conf_set_fn,
-                                 times, num_repeats,
-                                 mu = 0, n_cores = 1)
+get_cumul_miscoverage_rate <- function(data_generator_fn, conf_set_fn,
+                                       times, num_repeats,
+                                       mu = 0, n_cores = 1)
 {
   miscoverage_list <- mclapply(1:num_repeats, function(i){
     x <- data_generator_fn()
