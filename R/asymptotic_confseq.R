@@ -39,7 +39,7 @@ std_conjmix_margin <- function(t, rho2, alpha=0.05)
 best_rho2_exact <- function(t_opt, alpha_opt=0.05)
 {
   assertthat::assert_that(t_opt >= 1)
-  assertthat::assert_that(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
+  assertthat::assert_that(alpha_opt > 0 && alpha_opt < sqrt(lambertW0(1)))
 
   return((-lambertWm1(-alpha_opt^2 * exp(alpha_opt^2 - 1)) - 1) / t_opt)
 }
