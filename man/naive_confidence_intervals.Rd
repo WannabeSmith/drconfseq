@@ -29,5 +29,5 @@ A list containing the following vectors: \cr
 \item{u}{The upper confidence interval (a real vector).}
 }
 \description{
-Function signature: (real, real, real, boolean) -> (real, real)
+Naive confidence interval
 }

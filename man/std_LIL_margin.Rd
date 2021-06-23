@@ -16,5 +16,5 @@ std_LIL_margin(t, alpha = 0.05/2)
 The standard LIL margins (a real vector).
 }
 \description{
-Function signature: (int, real) -> real
+LIL standard (unit-variance) margin
 }

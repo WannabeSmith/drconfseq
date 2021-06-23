@@ -27,6 +27,7 @@ cumul_var <- function(x)
 
 #' Confidence interval margin for the mean of unit variance Gaussians
 #'
+#' @importFrom stats qnorm
 #' @param t The times at which the margin will be evaluated
 #' @param alpha The (0, 1)-valued confidence level
 #'

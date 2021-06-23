@@ -36,6 +36,7 @@ pseudo_outcome_abstract <- function(y, reg_1,
 
 #' Doubly-robust variables at many timepoints for binary treatment given nuisance function estimators.
 #'
+#' @importFrom stats rbinom
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)
 #' @param treatment Whether the subject received treatment
@@ -49,14 +50,15 @@ pseudo_outcome_abstract <- function(y, reg_1,
 #' @param regression_fn_0 The same as `regression_fn_1` but for those who did
 #'                        not receive treatment. If left NULL, this will be
 #'                        set to the same function as `regression_fn_1`.
-#' @param propensity_score A function which predicts the propensity score for
-#'                         each subject. Similar to `regression_fn_1`, this
-#'                         function takes three arguments: `y`, `X`, and `newX`,
-#'                         the training treatment indicator (1 if treatment, 0
-#'                         if control), the training covariates, and the
-#'                         evaluation covariates. The function outputs the
-#'                         predicted propensity score given the evaluation
-#'                         covariates, `newX`.
+#' @param propensity_score_fn A function which predicts the propensity score for
+#'                            each subject. Similar to `regression_fn_1`, this
+#'                            function takes three arguments: `y`, `X`, and
+#'                            `newX`,
+#'                            the training treatment indicator (1 if treatment,
+#'                            0 if control), the training covariates, and the
+#'                            evaluation covariates. The function outputs the
+#'                            predicted propensity score given the evaluation
+#'                            covariates, `newX`.
 #' @param train_idx The indices indicating the training split for the sample
 #'                  splitting algorithm. If left NULL, the training index will
 #'                  be assigned randomly with probability 1/2.
@@ -65,6 +67,7 @@ pseudo_outcome_abstract <- function(y, reg_1,
 #'              a single time (integer). If left NULL, the variables will
 #'              only be computed at time n.
 #' @param n_cores The number of cores to use for parallelization.
+#' @param cross_fit Should cross-fitting be used? (boolean)
 #' @return A list of doubly-robust variable vectors, one vector for each time
 #'         requested in `times`.
 #' @export
@@ -202,6 +205,7 @@ pseudo_outcome_variance <- function(y, reg_1, reg_0,
 #' Get the Super Learner function given a library of SuperLearner algorithms.
 #'
 #' @importFrom SuperLearner SuperLearner
+#' @importFrom stats gaussian
 #' @param SL.library Character vector containing SuperLearner algorithm names.
 #' @param family The family for the algorithm. If estimating the propensity
 #'               score, set `family = binomial`, but if estimating the
