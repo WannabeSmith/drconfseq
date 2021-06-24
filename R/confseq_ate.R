@@ -76,6 +76,7 @@ confseq_ate <- function(y, X, treatment,
 
   confseq <- data.frame(do.call(rbind, confseq_list))
   colnames(confseq) <- c('l', 'u')
+  rownames(confseq) <- times
 
   return(confseq)
 }
