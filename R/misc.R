@@ -19,7 +19,7 @@ cumul_mean <- function(x)
 cumul_var <- function(x)
 {
   t <- 1:length(x)
-  sigma2_t <- (cumul_mean(x^2) - cumul_mean(x)^2)*t/(t-1)
+  sigma2_t <- (cumul_mean(x ^ 2) - cumul_mean(x) ^ 2) * t / (t - 1)
 
   return(sigma2_t)
 }
@@ -34,7 +34,7 @@ cumul_var <- function(x)
 #' @export
 naive_std_margin <- function(t, alpha)
 {
-  return(qnorm(p = 1-alpha) / sqrt(t))
+  return(qnorm(p = 1 - alpha) / sqrt(t))
 }
 
 #' Naive confidence interval
@@ -50,27 +50,30 @@ naive_std_margin <- function(t, alpha)
 #' \item{l}{The lower confidence interval (a real vector).}
 #' \item{u}{The upper confidence interval (a real vector).}
 #' @export
-naive_confidence_intervals <- function(x, alpha=0.05,
-                                       var=NULL, return_all_times = FALSE)
+naive_confidence_intervals <- function(x,
+                                       alpha = 0.05,
+                                       var = NULL,
+                                       return_all_times = FALSE)
 {
-
   # If the user wants results at each time, use time from 1 to n.
   # Otherwise, just use time n.
-  if(return_all_times)
+  if (return_all_times)
   {
     t = seq(1, length(x))
     mu_hat_t = cumul_mean(x)
-    if (is.null(var)) var <- cumul_var(x)
+    if (is.null(var))
+      var <- cumul_var(x)
   } else
   {
     t = length(x)
     mu_hat_t = mean(x)
-    if (is.null(var)) var <- var(x)
+    if (is.null(var))
+      var <- var(x)
   }
 
-  std_margin <- naive_std_margin(t=t, alpha=alpha/2)
+  std_margin <- naive_std_margin(t = t, alpha = alpha / 2)
 
-  margin <- sqrt(var)*std_margin
+  margin <- sqrt(var) * std_margin
   # When the margin is NA, such as on the first observation, just return
   # infinity
   margin[is.na(margin)] = Inf
@@ -97,24 +100,28 @@ naive_confidence_intervals <- function(x, alpha=0.05,
 #' @return A vector of (increasing) miscoverage rates at each time
 #'         (a (0, 1)-valued vector).
 #' @export
-get_cumul_miscoverage_rate <- function(data_generator_fn, conf_set_fn,
-                                       times, num_repeats,
-                                       mu = 0, n_cores = 1)
-{
-  miscoverage_list <- mclapply(1:num_repeats, function(i){
-    x <- data_generator_fn()
-    conf_sets <- conf_set_fn(x)
-    l <- conf_sets$l[times]
-    u <- conf_sets$u[times]
-    miscoverage <- cummax(l > mu | u < mu)
-    stopifnot(all(!is.na(miscoverage)))
-    return(miscoverage)
-  }, mc.cores = n_cores)
+get_cumul_miscoverage_rate <-
+  function(data_generator_fn,
+           conf_set_fn,
+           times,
+           num_repeats,
+           mu = 0,
+           n_cores = 1)
+  {
+    miscoverage_list <- mclapply(1:num_repeats, function(i) {
+      x <- data_generator_fn()
+      conf_sets <- conf_set_fn(x)
+      l <- conf_sets$l[times]
+      u <- conf_sets$u[times]
+      miscoverage <- cummax(l > mu | u < mu)
+      stopifnot(all(!is.na(miscoverage)))
+      return(miscoverage)
+    }, mc.cores = n_cores)
 
-  miscoverage_rate <- colMeans(do.call(rbind, miscoverage_list))
+    miscoverage_rate <- colMeans(do.call(rbind, miscoverage_list))
 
-  return(miscoverage_rate)
-}
+    return(miscoverage_rate)
+  }
 
 
 #' Get a sequence of logarithmically-spaced numbers

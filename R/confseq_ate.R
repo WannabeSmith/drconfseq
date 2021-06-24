@@ -41,7 +41,9 @@ require(parallel)
 #' @param cross_fit Should cross-fitting be used? (boolean)
 #' @return Data frame containing the lower and upper confidence sequences.
 #' @export
-confseq_ate <- function(y, X, treatment,
+confseq_ate <- function(y,
+                        X,
+                        treatment,
                         regression_fn_1 = get_SL_fn(),
                         regression_fn_0 = NULL,
                         propensity_score_fn = get_SL_fn(family = binomial()),
@@ -55,24 +57,30 @@ confseq_ate <- function(y, X, treatment,
   # Get the 'doubly-robust ATE' variables as a list for each time in times
   # If times is NULL, this will just compute the variables for time n.
   pseudo_outcome_list <-
-    pseudo_outcome_sequential(y = y, X = X,
-                              treatment = treatment,
-                              regression_fn_1 = regression_fn_1,
-                              regression_fn_0 = regression_fn_0,
-                              propensity_score_fn = propensity_score_fn,
-                              train_idx = train_idx,
-                              times = times,
-                              n_cores = n_cores,
-                              cross_fit = cross_fit)
+    pseudo_outcome_sequential(
+      y = y,
+      X = X,
+      treatment = treatment,
+      regression_fn_1 = regression_fn_1,
+      regression_fn_0 = regression_fn_0,
+      propensity_score_fn = propensity_score_fn,
+      train_idx = train_idx,
+      times = times,
+      n_cores = n_cores,
+      cross_fit = cross_fit
+    )
 
   # Compute the confidence sequence at each of these times
-  confseq_list <- mclapply(pseudo_outcome_list, function(pseudo_outcomes){
-    acs <- asymptotic_confseq(pseudo_outcomes,
-                              t_opt = t_opt,
-                              alpha = alpha,
-                              return_all_times = FALSE)
-    return(c(acs$l, acs$u))
-  }, mc.cores = n_cores)
+  confseq_list <-
+    mclapply(pseudo_outcome_list, function(pseudo_outcomes) {
+      acs <- asymptotic_confseq(
+        pseudo_outcomes,
+        t_opt = t_opt,
+        alpha = alpha,
+        return_all_times = FALSE
+      )
+      return(c(acs$l, acs$u))
+    }, mc.cores = n_cores)
 
   confseq <- data.frame(do.call(rbind, confseq_list))
   colnames(confseq) <- c('l', 'u')
@@ -94,29 +102,33 @@ confseq_ate <- function(y, X, treatment,
 #'              only be computed at time n.
 #'
 #' @export
-confseq_ate_unadjusted <- function(y, treatment,
+confseq_ate_unadjusted <- function(y,
+                                   treatment,
                                    propensity_score,
                                    t_opt,
                                    alpha = 0.05,
                                    times = NULL)
 {
   pseudo_outcome <-
-    pseudo_outcome_abstract(y = y, reg_1 = 0,
-                            reg_0 = 0,
-                            propensity_score = propensity_score,
-                            treatment = treatment)
+    pseudo_outcome_abstract(
+      y = y,
+      reg_1 = 0,
+      reg_0 = 0,
+      propensity_score = propensity_score,
+      treatment = treatment
+    )
 
   cs <- asymptotic_confseq(pseudo_outcome, t_opt = t_opt,
-                            alpha = alpha)
+                           alpha = alpha)
 
-  df <- data.frame(l = cs$l, u = cs$u,
+  df <- data.frame(l = cs$l,
+                   u = cs$u,
                    row.names = 1:length(y))
 
-  if(all(!is.na(times)))
+  if (all(!is.na(times)))
   {
     df <- df[times,]
   }
 
   return(df)
 }
-

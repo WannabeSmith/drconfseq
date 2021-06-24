@@ -15,7 +15,8 @@
 #' @return The doubly-robust variables at each time
 #'         (a vector of real numbers)
 #' @export
-pseudo_outcome_abstract <- function(y, reg_1,
+pseudo_outcome_abstract <- function(y,
+                                    reg_1,
                                     reg_0,
                                     propensity_score,
                                     treatment)
@@ -27,9 +28,9 @@ pseudo_outcome_abstract <- function(y, reg_1,
     # difference of regression functions
     (reg_1 - reg_0) +
     # treatments by propensity score
-    (treatment/propensity_score - (1-treatment)/(1-propensity_score))*
+    (treatment / propensity_score - (1 - treatment) / (1 - propensity_score)) *
     # y minus regression for given treatment
-    (y - treatment*reg_1 - (1-treatment)*reg_0)
+    (y - treatment * reg_1 - (1 - treatment) * reg_0)
 
   return(variables)
 }
@@ -72,21 +73,26 @@ pseudo_outcome_abstract <- function(y, reg_1,
 #' @return A list of doubly-robust variable vectors, one vector for each time
 #'         requested in `times`.
 #' @export
-pseudo_outcome_sequential <- function(y, X, treatment,
+pseudo_outcome_sequential <- function(y,
+                                      X,
+                                      treatment,
                                       regression_fn_1,
                                       regression_fn_0 = NULL,
                                       propensity_score_fn,
                                       train_idx = NULL,
                                       times = NULL,
-                                      n_cores = 1, cross_fit = FALSE)
+                                      n_cores = 1,
+                                      cross_fit = FALSE)
 {
-  if (is.null(regression_fn_0)) regression_fn_0 <- regression_fn_1
+  if (is.null(regression_fn_0))
+    regression_fn_0 <- regression_fn_1
 
   # Get sample splitting index if not provided by user
-  if (is.null(train_idx)) train_idx <- rbinom(length(y), 1, 0.5)
+  if (is.null(train_idx))
+    train_idx <- rbinom(length(y), 1, 0.5)
   train_idx <- train_idx == TRUE
 
-  eval_idx <- 1-train_idx == TRUE
+  eval_idx <- 1 - train_idx == TRUE
 
   if (any(is.null(times)))
   {
@@ -94,7 +100,7 @@ pseudo_outcome_sequential <- function(y, X, treatment,
     times = length(y)
   }
 
-  if(cross_fit)
+  if (cross_fit)
   {
     train_indices <- list(train_idx, eval_idx)
   } else
@@ -105,12 +111,12 @@ pseudo_outcome_sequential <- function(y, X, treatment,
   pb <- progress_bar$new(total = length(unlist(train_indices)),
                          clear = TRUE)
 
-  variables_list <- mclapply(times, function(time){
+  variables_list <- mclapply(times, function(time) {
     # This unlist(lapply(...)) looks a bit strange, but it is
     # necessary for when the user wishes to perform cross-fitting.
     # See above if/else statement.
 
-    unlist(lapply(train_indices, function(train_idx){
+    unlist(lapply(train_indices, function(train_idx) {
       train_idx_t <- train_idx == TRUE
       train_idx_t[1:length(train_idx) > time] = FALSE
       eval_idx_t <- 1 - train_idx == TRUE
@@ -119,27 +125,29 @@ pseudo_outcome_sequential <- function(y, X, treatment,
       y_train <- y[train_idx_t]
       y_eval <- y[eval_idx_t]
       # X
-      X_train <- X[train_idx_t, ]
-      X_eval <- X[eval_idx_t, ]
+      X_train <- X[train_idx_t,]
+      X_eval <- X[eval_idx_t,]
       # treatment
       treatment_train <- treatment[train_idx_t]
       treatment_eval <- treatment[eval_idx_t]
 
-      reg_1_est <- regression_fn_1(y = y_train[treatment_train==1],
-                                   X = X_train[treatment_train==1, ],
+      reg_1_est <- regression_fn_1(y = y_train[treatment_train == 1],
+                                   X = X_train[treatment_train == 1,],
                                    newX = X_eval)
-      reg_0_est <- regression_fn_0(y = y_train[treatment_train==0],
-                                   X = X_train[treatment_train==0, ],
+      reg_0_est <- regression_fn_0(y = y_train[treatment_train == 0],
+                                   X = X_train[treatment_train == 0,],
                                    newX = X_eval)
       pi_est <- propensity_score_fn(y = as.numeric(treatment_train),
                                     X = X_train,
                                     newX = X_eval)
 
-      variables <- pseudo_outcome_abstract(y = y_eval,
-                                           reg_1 = reg_1_est,
-                                           reg_0 = reg_0_est,
-                                           propensity_score = pi_est,
-                                           treatment = treatment_eval)
+      variables <- pseudo_outcome_abstract(
+        y = y_eval,
+        reg_1 = reg_1_est,
+        reg_0 = reg_0_est,
+        propensity_score = pi_est,
+        treatment = treatment_eval
+      )
       pb$tick()
       return(variables)
     }))
@@ -163,7 +171,8 @@ pseudo_outcome_sequential <- function(y, X, treatment,
 #'                  (a boolean vector or 0/1-valued integer vector).
 #' @return The doubly-robust estimator at each time (a vector of real numbers)
 #' @export
-pseudo_outcome_estimator <- function(y, reg_1,
+pseudo_outcome_estimator <- function(y,
+                                     reg_1,
                                      reg_0,
                                      propensity_score,
                                      treatment)
@@ -189,7 +198,9 @@ pseudo_outcome_estimator <- function(y, reg_1,
 #' @return The variance of the doubly-robust observations
 #'         (a vector of real numbers)
 #' @export
-pseudo_outcome_variance <- function(y, reg_1, reg_0,
+pseudo_outcome_variance <- function(y,
+                                    reg_1,
+                                    reg_0,
                                     propensity_score,
                                     treatment)
 {
@@ -216,19 +227,24 @@ pseudo_outcome_variance <- function(y, reg_1, reg_0,
 #'         algorithm and uses the `SuperLearner` library to predict the outcome
 #'         for the covariates `newX`.
 #' @export
-get_SL_fn <- function(SL.library=c("SL.earth","SL.gam",
-                                   "SL.glm","SL.glmnet",
-                                   "SL.glm.interaction",
-                                   "SL.ranger"),
-                      family=gaussian())
+get_SL_fn <- function(SL.library = c("SL.earth",
+                                     "SL.gam",
+                                     "SL.glm",
+                                     "SL.glmnet",
+                                     "SL.glm.interaction",
+                                     "SL.ranger"),
+                      family = gaussian())
 {
   SL_fn <- function(y, X, newX)
   {
-    SuperLearner(Y = y, X = X, newX = newX,
-                 SL.library = SL.library,
-                 family = family)$SL.predict
+    SuperLearner(
+      Y = y,
+      X = X,
+      newX = newX,
+      SL.library = SL.library,
+      family = family
+    )$SL.predict
   }
 
   return(SL_fn)
 }
-
