@@ -16,7 +16,6 @@ library(gridExtra)
 library(purrr)
 library(dplyr)
 library(sequential.causal)
-library(pracma)
 
 plt_width = 18
 plt_height = 9

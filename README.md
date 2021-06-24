@@ -11,7 +11,6 @@ devtools::install_github('wannabesmith/sequential.causal')
 ``` r
 library(sequential.causal)
 library(parallel)
-library(pracma)
 ```
 
 Let’s jump into a simple example based on the paper “Doubly-robust

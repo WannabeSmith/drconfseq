@@ -150,7 +150,6 @@ asymptotic_confseq <- function(x, t_opt, alpha=0.05,
 #'             ylab theme_minimal theme scale_x_log10 annotation_logticks
 #'             guide_legend element_text
 #' @importFrom dplyr "%>%"
-#' @importFrom pracma logseq
 #' @param t_opts The times for which to optimize the confidence sequence
 #'               (vector of positive integers)
 #' @param t The times to plot the confidence sequence

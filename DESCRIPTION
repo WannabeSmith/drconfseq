@@ -17,7 +17,6 @@ Imports:
   dplyr,
   lamW,
   scales,
-  pracma,
   rlang,
   progress
 License: BSD_3_clause + file LICENSE

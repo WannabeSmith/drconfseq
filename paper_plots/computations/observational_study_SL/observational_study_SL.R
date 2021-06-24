@@ -1,6 +1,5 @@
 library(sequential.causal)
 library(parallel)
-library(pracma)
 library(dtplyr)
 library(dplyr, warn.conflicts=FALSE)
 

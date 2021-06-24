@@ -63,7 +63,7 @@ SL.library <- c("SL.earth",
                 "SL.xgboost")
 
 # times at which to compute the confidence sequences
-times <- unique(round(pracma::logseq(1000, nrow(sepsis), n = 30)))
+times <- unique(round(logseq(1000, nrow(sepsis), n = 30)))
 t_opt = 1500
 
 cs_unadj <-

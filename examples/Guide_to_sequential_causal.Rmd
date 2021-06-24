@@ -23,7 +23,6 @@ devtools::install_github('wannabesmith/sequential.causal')
 ```{r, warning=FALSE, message=FALSE}
 library(sequential.causal)
 library(parallel)
-library(pracma)
 ```
 
 Let's jump into a simple example based on the paper "Doubly-robust confidence sequences for sequential causal inference" by Waudby-Smith et al. (2021). Suppose that we wish to estimate the ATE in an observational setting with no unmeasured confounding.
