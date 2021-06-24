@@ -43,7 +43,7 @@ require(parallel)
 #' @export
 confseq_ate <- function(y, X, treatment,
                         regression_fn_1 = get_SL_fn(),
-                        regression_fn_0 = get_SL_fn(),
+                        regression_fn_0 = NULL,
                         propensity_score_fn = get_SL_fn(family = binomial()),
                         t_opt,
                         train_idx = NULL,
@@ -76,6 +76,7 @@ confseq_ate <- function(y, X, treatment,
 
   confseq <- data.frame(do.call(rbind, confseq_list))
   colnames(confseq) <- c('l', 'u')
+  rownames(confseq) <- times
 
   return(confseq)
 }

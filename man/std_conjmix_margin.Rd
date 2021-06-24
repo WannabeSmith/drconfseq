@@ -20,3 +20,10 @@ The standard conjugate mixture margins (a real vector).
 \description{
 Conjugate mixture standard (unit-variance) margin
 }
+\examples{
+t <- 10:10000
+rho2 <- 0.1
+margin <- std_conjmix_margin(t, rho2)
+
+ggplot2::ggplot() + ggplot2::geom_line(ggplot2::aes(t, margin))
+}

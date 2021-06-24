@@ -37,6 +37,7 @@ pseudo_outcome_abstract <- function(y, reg_1,
 #' Doubly-robust variables at many timepoints for binary treatment given nuisance function estimators.
 #'
 #' @importFrom stats rbinom
+#' @importFrom progress progress_bar
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)
 #' @param treatment Whether the subject received treatment
@@ -101,15 +102,19 @@ pseudo_outcome_sequential <- function(y, X, treatment,
     train_indices <- list(train_idx)
   }
 
+  pb <- progress_bar$new(total = length(unlist(train_indices)),
+                         clear = TRUE)
+
   variables_list <- mclapply(times, function(time){
     # This unlist(lapply(...)) looks a bit strange, but it is
     # necessary for when the user wishes to perform cross-fitting.
     # See above if/else statement.
+
     unlist(lapply(train_indices, function(train_idx){
       train_idx_t <- train_idx == TRUE
-      train_idx_t[(time+1):length(train_idx_t)] = FALSE
+      train_idx_t[1:length(train_idx) > time] = FALSE
       eval_idx_t <- 1 - train_idx == TRUE
-      eval_idx_t[(time+1):length(eval_idx_t)] = FALSE
+      eval_idx_t[1:length(train_idx) > time] = FALSE
       # y
       y_train <- y[train_idx_t]
       y_eval <- y[eval_idx_t]
@@ -123,24 +128,19 @@ pseudo_outcome_sequential <- function(y, X, treatment,
       reg_1_est <- regression_fn_1(y = y_train[treatment_train==1],
                                    X = X_train[treatment_train==1, ],
                                    newX = X_eval)
-      message(paste('Finished fitting regression model for treated at time',
-                    time))
       reg_0_est <- regression_fn_0(y = y_train[treatment_train==0],
                                    X = X_train[treatment_train==0, ],
                                    newX = X_eval)
-      message(paste('Finished fitting regression model for untreated at time',
-                    time))
       pi_est <- propensity_score_fn(y = as.numeric(treatment_train),
                                     X = X_train,
                                     newX = X_eval)
-      message(paste('Finished fitting prop. score function at time',
-                    time))
 
       variables <- pseudo_outcome_abstract(y = y_eval,
                                            reg_1 = reg_1_est,
                                            reg_0 = reg_0_est,
                                            propensity_score = pi_est,
                                            treatment = treatment_eval)
+      pb$tick()
       return(variables)
     }))
   }, mc.cores = n_cores)
