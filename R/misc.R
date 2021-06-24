@@ -115,3 +115,16 @@ get_cumul_miscoverage_rate <- function(data_generator_fn, conf_set_fn,
 
   return(miscoverage_rate)
 }
+
+
+#' Get a sequence of logarithmically-spaced numbers
+#'
+#' @param from The starting value of the sequence
+#' @param to The final value of the sequence
+#' @param n How many values of the sequence to output
+#' @return A sequence of logarithmically-spaced numbers from `from` to `to`.
+#' @export
+logseq <- function(from, to, n)
+{
+  exp(seq(log(from), log(to), length.out = n))
+}
