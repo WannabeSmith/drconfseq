@@ -7,9 +7,9 @@ Maintainer: Ian Waudby-Smith <ianws@cmu.edu>
 Description: Performs anytime-valid doubly robust uncertainty quantification of causal effects.
     Based on the paper "Doubly robust confidence sequences for sequential causal inference" (https://arxiv.org/pdf/2103.06476.pdf).
 Depends:
-  R (>= 3.5.0),
-  SuperLearner
+  R (>= 3.5.0)
 Imports:
+  SuperLearner,
   stats,
   parallel,
   ggplot2,
