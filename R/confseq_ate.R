@@ -1,7 +1,3 @@
-require(SuperLearner)
-require(rpart)
-require(parallel)
-
 #' Confidence sequence for the average treatment effect.
 #'
 #' @importFrom parallel mclapply
