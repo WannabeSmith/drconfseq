@@ -26,6 +26,7 @@ for (start_time in start_times)
     )
   }
 
+  print(paste("Computing miscoverage for start time:", start_time))
   miscoverage_rate <-
     get_cumul_miscoverage_rate(
       data_generator_fn = data_generator_fn,
