@@ -5,7 +5,7 @@ Here we describe how to reproduce the plots in [Doubly robust confidence sequenc
 2. [Analyze sepsis data](todo) (optional), and
 3. Generate plots from the output of steps 1 and 2.
 
-The sepsis data analysis is labeled as "optional" because it requires access to, and extracting from, the [MIMIC-III](https://mimic.mit.edu/docs/iii/) database, which requires significant memory and computational resources. For instructions on how to extract data from MIMIC-III, see the README found in [this folder](computations/sepsis).
+The sepsis data analysis is labeled as "optional" because it requires access to, and extracting from, the [MIMIC-III](https://mimic.mit.edu/docs/iii/) database, which requires significant memory and computational resources. For instructions on how to extract data from MIMIC-III, see the README found in [this folder](sepsis).
 
 ## 1. Run simulations
 
@@ -25,7 +25,7 @@ git clone git@github.com:WannabeSmith/sequential.causal.git
 Navigate to the simulations folder:
 
 ```zsh 
-cd sequential.causal/paper_plots/computations/simulations/
+cd sequential.causal/paper_plots/simulations/
 ```
 
 Run all simulations using the shell script. For example,
@@ -46,7 +46,7 @@ and so on.
 
 ## 2. Analyze sepsis data (optional)
 
-See the README in [this folder](computations/sepsis).
+See the README in [this folder](sepsis).
 
 ## 3. Generate plots
 

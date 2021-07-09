@@ -23,11 +23,12 @@ data_generator_fn <- function() {
 acs_fn <- function(y) {
   asymptotic_confseq(x = y,
                      t_opt = t_opt,
+                     alpha = alpha,
                      return_all_times = TRUE)
 }
 clt_fn <-
   function(y) {
-    naive_confidence_intervals(x = y, return_all_times = TRUE)
+    naive_confidence_intervals(x = y, alpha = alpha, return_all_times = TRUE)
   }
 
 print("Simulating time-uniform confidence sequence miscoverage...")

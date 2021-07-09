@@ -26,7 +26,7 @@ palette <- "Set2"
 alpha <- 0.05
 
 figures_dir = here('paper_plots/figures/')
-simulations_dir = here('paper_plots/computations/simulations')
+simulations_dir = here('paper_plots/simulations')
 ```
 
 
@@ -61,7 +61,7 @@ plt <- ggplot(plt_data_lines) +
   labs(color="Start time", shape="Start time", linetype="Start time") +
   guides(size=FALSE) + 
   xlab('Time') + ylab('Cumulative miscoverage rate') + 
-  theme(text = element_text(family="serif")) +
+  theme(text = element_text(family="serif"), legend.position=c(0.85, 0.3)) +
   scale_colour_brewer(palette = palette)
 
 
@@ -176,7 +176,7 @@ plt_miscoverage <- ggplot(plot_df) +
                                               scales::math_format(10^.x))) +
   annotation_logticks(colour = "grey", side = "b") + 
   theme_fn() +
-  theme(legend.position=c(0.75, 0.3),
+  theme(legend.position=c(0.75, 0.4),
         text = element_text(family="serif")) +
   scale_color_brewer(palette=palette)
 
@@ -283,7 +283,7 @@ plt_cs
 ## Sepsis example
 
 ```{r}
-sepsis_dir = here('paper_plots/computations/sepsis')
+sepsis_dir = here('paper_plots/sepsis')
 load(here(sepsis_dir, '/sepsis_cs.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 

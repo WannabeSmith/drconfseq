@@ -15,9 +15,9 @@ Specifically, running the `make-tables.sql` script from [this folder](https://gi
 
 ## 3. Extract the relevant data
 
-Run our SQL query [`get_sepsis_patients.sql`](/paper_plots/computations/sepsis/get_sepsis_patients.sql) found in this folder to extract sepsis-3  patients along with their 24-hour post-admission IV fluid intake, demographic information, and other medically relevant covariates. 
+Run our SQL query [`get_sepsis_patients.sql`](/paper_plots/sepsis/get_sepsis_patients.sql) found in this folder to extract sepsis-3  patients along with their 24-hour post-admission IV fluid intake, demographic information, and other medically relevant covariates. 
 
-Save the resulting table as a csv to `paper_plots/computations/sepsis/data/sepsis_patients.csv`.
+Save the resulting table as a csv to `paper_plots/sepsis/data/sepsis_patients.csv`.
 
 ## 4. Compute doubly robust confidence sequences
 
@@ -25,7 +25,7 @@ Now that we have the required sepsis patient data, we are ready to use our confi
 
 ```zsh
 # Enter the sepsis directory
-cd sequential.causal/paper_plots/computations/sepsis
+cd sequential.causal/paper_plots/sepsis
 
 # Run the R script. Note this may take a while...
 Rscript compute_sepsis_cs.R
