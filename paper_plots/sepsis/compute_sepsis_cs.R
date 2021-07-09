@@ -3,7 +3,7 @@ library(dtplyr)
 library(dplyr, warn.conflicts = FALSE)
 library(ggplot2)
 
-library(sequential.causal)
+library(drconfseq)
 
 clean_sepsis_data <- function(data)
 {

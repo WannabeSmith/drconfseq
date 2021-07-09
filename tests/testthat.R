@@ -1,4 +1,4 @@
 library(testthat)
-library(sequential.causal)
+library(drconfseq)
 
-test_check("sequential.causal")
+test_check("drconfseq")
