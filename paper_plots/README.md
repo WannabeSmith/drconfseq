@@ -9,23 +9,23 @@ The sepsis data analysis is labeled as "optional" because it requires access to,
 
 ## 1. Run simulations
 
-First, make sure that `sequential.causal` is installed in your R environment:
+First, make sure that `drconfseq` is installed in your R environment:
 
 ```R
 # Install devtools from CRAN if you don't have it: install.packages("devtools")
-devtools::install_github("wannabesmith/sequential.causal")
+devtools::install_github("wannabesmith/drconfseq")
 ```
 
 Now, clone the git repository:
 
 ```zsh
-git clone git@github.com:WannabeSmith/sequential.causal.git
+git clone git@github.com:WannabeSmith/drconfseq.git
 ```
 
 Navigate to the simulations folder:
 
 ```zsh 
-cd sequential.causal/paper_plots/simulations/
+cd drconfseq/paper_plots/simulations/
 ```
 
 Run all simulations using the shell script. For example,
@@ -50,6 +50,6 @@ See the README in [this folder](sepsis).
 
 ## 3. Generate plots
 
-Open `sequential.causal/paper_plots/plots_for_paper.Rmd` with RStudio and run the chunks sequentially. Alternatively you can simply knit the Rmd file.
+Open `drconfseq/paper_plots/plots_for_paper.Rmd` with RStudio and run the chunks sequentially. Alternatively you can simply knit the Rmd file.
 
 Note that if you did not complete step 2, the final chunk will not run correctly (and neither will a full knit).

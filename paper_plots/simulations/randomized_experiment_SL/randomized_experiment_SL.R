@@ -1,4 +1,4 @@
-library(sequential.causal)
+library(drconfseq)
 library(parallel)
 library(dtplyr)
 library(dplyr, warn.conflicts = FALSE)

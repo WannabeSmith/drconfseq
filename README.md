@@ -1,15 +1,15 @@
-# The `sequential.causal` package
+# drconfseq: Doubly robust confidence sequences
 
-#### `sequential.causal` is an R package for sequential inference of the average treatment effect (ATE).
+#### `drconfseq` is an R package for sequential inference of the average treatment effect (ATE).
 
 To download the package, run the following
 
 ``` r
-devtools::install_github('wannabesmith/sequential.causal')
+devtools::install_github('wannabesmith/drconfseq')
 ```
 
 ``` r
-library(sequential.causal)
+library(drconfseq)
 library(parallel)
 ```
 

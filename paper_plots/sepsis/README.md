@@ -25,7 +25,7 @@ Now that we have the required sepsis patient data, we are ready to use our confi
 
 ```zsh
 # Enter the sepsis directory
-cd sequential.causal/paper_plots/sepsis
+cd drconfseq/paper_plots/sepsis
 
 # Run the R script. Note this may take a while...
 Rscript compute_sepsis_cs.R

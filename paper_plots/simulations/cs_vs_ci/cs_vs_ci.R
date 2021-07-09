@@ -1,4 +1,4 @@
-library(sequential.causal)
+library(drconfseq)
 library(parallel)
 n <- 100000
 start_time <- 500

@@ -17,7 +17,7 @@ library(ggplot2)
 library(gridExtra)
 library(purrr)
 library(dplyr)
-library(sequential.causal)
+library(drconfseq)
 
 plt_width = 18
 plt_height = 9
