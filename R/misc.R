@@ -1,13 +1,22 @@
 #' Cumulative mean
 #'
 #' @param x The real-valued data
+#' @param regularizer_obs How many fake "regularization" observations to add.
+#'                        Setting this to 0 corresponds to the usual cumulative
+#'                        sample mean, while larger values lead to more
+#'                        regularization.
+#' @param regularizer_mean The value of the fake regularization observations.
+#'                         If `regularizer_obs` is 0, then this parameter has
+#'                         no effect on the output of `cumul_mean`.
 #'
 #' @return The sample mean of `x` at each time
 #' @export
-cumul_mean <- function(x)
+cumul_mean <- function(x,
+                       regularizer_obs = 0,
+                       regularizer_mean = 1 / 2)
 {
   t <- seq(1, length(x))
-  return(cumsum(x) / t)
+  return((cumsum(x) + regularizer_obs * regularizer_mean) / (t + regularizer_obs))
 }
 
 #' Cumulative variance
@@ -118,8 +127,7 @@ get_cumul_miscoverage_rate <-
 
       if (i %% as.integer(0.1 * num_repeats) == 0)
       {
-        print(paste(
-          "Finished simulation", i, "out of", num_repeats, sep = " "))
+        print(paste("Finished simulation", i, "out of", num_repeats, sep = " "))
       }
       return(miscoverage)
     }, mc.cores = n_cores)

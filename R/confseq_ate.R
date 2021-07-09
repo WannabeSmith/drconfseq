@@ -89,8 +89,11 @@ confseq_ate <- function(y,
 #' @param y The measured outcome (a real vector).
 #' @param treatment Whether the subject received treatment
 #'                  (a boolean vector or 0/1-valued integer vector).
-#' @param propensity_score The propensity scores ((0, 1)-valued reals)
 #' @param t_opt Time for which the CS should be tightest
+#' @param propensity_score The propensity scores ((0, 1)-valued reals or NULL).
+#'                         If left as NULL, this will be set to the
+#'                         (regularized) cumulative mean of `treatment`. See
+#'                         `cumul_mean` for more information.
 #' @param alpha Confidence level between 0 and 1 (real)
 #' @param times The times for which the doubly-robust variables should be
 #'              calculated. Can be a vector of times (an integer vector) or
@@ -100,11 +103,18 @@ confseq_ate <- function(y,
 #' @export
 confseq_ate_unadjusted <- function(y,
                                    treatment,
-                                   propensity_score,
                                    t_opt,
+                                   propensity_score = NULL,
                                    alpha = 0.05,
                                    times = NULL)
 {
+  if (is.null(propensity_score))
+  {
+    propensity_score = cumul_mean(treatment,
+                                  regularizer_obs = 1,
+                                  regularizer_mean = 1 / 2)
+  }
+
   pseudo_outcome <-
     pseudo_outcome_abstract(
       y = y,
@@ -123,7 +133,7 @@ confseq_ate_unadjusted <- function(y,
 
   if (all(!is.na(times)))
   {
-    df <- df[times,]
+    df <- df[times, ]
   }
 
   return(df)

@@ -5,7 +5,7 @@ n <- 10000
 num_repeats <- 10000
 n_cores <- parallel::detectCores()
 df <- 4
-alpha <- 0.05
+alpha <- 0.1
 stopifnot(all(n >= start_times))
 
 miscoverage_rates <- list()
@@ -20,7 +20,7 @@ for (start_time in start_times)
   {
     asymptotic_confseq(
       x = y,
-      t_opt = 10 * start_time,
+      t_opt = 5 * start_time,
       alpha = alpha,
       return_all_times = TRUE
     )

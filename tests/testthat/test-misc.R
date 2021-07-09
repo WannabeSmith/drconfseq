@@ -3,6 +3,30 @@ test_that("cumul_mean works", {
   expect_equal(cumul_mean(x)[length(x)], mean(x))
   expect_equal(cumul_mean(x)[1], x[1])
   expect_equal(length(cumul_mean(x)), length(x))
+
+  expect_equal(
+    cumul_mean(
+      x,
+      regularizer_obs = 0,
+      regularizer_mean = -1
+    ),
+    cumul_mean(x, regularizer_obs = 0, regularizer_mean = 100)
+  )
+
+  # Make sure fake observations parameter works properly
+  fake_ns = c(0, 1, 5, 100)
+  for (fake_n in fake_ns)
+  {
+    x_augmented = c(rep(0, fake_n), x)
+    expect_equal(
+      cumul_mean(
+        x,
+        regularizer_obs = fake_n,
+        regularizer_mean = 0
+      ),
+      cumul_mean(x_augmented, regularizer_obs = 0)[(fake_n + 1):length(x_augmented)]
+    )
+  }
 })
 
 test_that("cumul_var works", {

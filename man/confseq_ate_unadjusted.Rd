@@ -7,8 +7,8 @@
 confseq_ate_unadjusted(
   y,
   treatment,
-  propensity_score,
   t_opt,
+  propensity_score = NULL,
   alpha = 0.05,
   times = NULL
 )
@@ -19,9 +19,12 @@ confseq_ate_unadjusted(
 \item{treatment}{Whether the subject received treatment
 (a boolean vector or 0/1-valued integer vector).}
 
-\item{propensity_score}{The propensity scores ((0, 1)-valued reals)}
-
 \item{t_opt}{Time for which the CS should be tightest}
+
+\item{propensity_score}{The propensity scores ((0, 1)-valued reals or NULL).
+If left as NULL, this will be set to the
+(regularized) cumulative mean of `treatment`. See
+`cumul_mean` for more information.}
 
 \item{alpha}{Confidence level between 0 and 1 (real)}
 

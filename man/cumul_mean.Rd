@@ -4,10 +4,19 @@
 \alias{cumul_mean}
 \title{Cumulative mean}
 \usage{
-cumul_mean(x)
+cumul_mean(x, regularizer_obs = 0, regularizer_mean = 1/2)
 }
 \arguments{
 \item{x}{The real-valued data}
+
+\item{regularizer_obs}{How many fake "regularization" observations to add.
+Setting this to 0 corresponds to the usual cumulative
+sample mean, while larger values lead to more
+regularization.}
+
+\item{regularizer_mean}{The value of the fake regularization observations.
+If `regularizer_obs` is 0, then this parameter has
+no effect on the output of `cumul_mean`.}
 }
 \value{
 The sample mean of `x` at each time

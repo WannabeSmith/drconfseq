@@ -5,6 +5,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 ATE <- 1
 n = 10000
+start_time = 500
 d = 3
 X_mtx <- cbind(1, matrix(rnorm(n * d), nrow = n))
 X_data <- X_mtx %>%
@@ -56,7 +57,7 @@ pi_fn <- get_SL_fn(family = binomial)
 glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 
 
-times <- unique(round(logseq(250, n, n = 30)))
+times <- unique(round(logseq(start_time, n, n = 30)))
 alpha <- 0.05
 n_cores <- detectCores()
 
@@ -73,7 +74,7 @@ confseq_SL <-
     regression_fn_0 = sl_reg_1,
     propensity_score_fn = pi_fn,
     train_idx = train_idx,
-    t_opt = 250,
+    t_opt = 1000,
     alpha = alpha,
     times = times,
     n_cores = n_cores,
@@ -90,19 +91,18 @@ confseq_glm <-
                                       "SL.glm",
                                     family = binomial()),
     train_idx = train_idx,
-    t_opt = 250,
+    t_opt = 1000,
     alpha = alpha,
     times = times,
     n_cores = n_cores,
     cross_fit = TRUE
   )
-
 confseq_unadj <-
   confseq_ate_unadjusted(
     y = y,
     treatment = treatment,
-    propensity_score = mean(treatment),
-    t_opt = 250,
+    propensity_score = NULL,
+    t_opt = 1000,
     alpha = alpha,
     times = times
   )
