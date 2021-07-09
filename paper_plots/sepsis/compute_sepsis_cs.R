@@ -50,10 +50,10 @@ sepsis = fread('./data/sepsis_patients.csv',
   clean_sepsis_data()
 
 y <- as.numeric(sepsis$mortality_30d)
-X <- model.matrix( ~ age + gender + diabetes +
-                     elixhauser_hospital + sofa +
-                     qsofa,
-                   data = sepsis) %>%
+X <- model.matrix(~ age + gender + diabetes +
+                    elixhauser_hospital + sofa +
+                    qsofa,
+                  data = sepsis) %>%
   as.data.frame() %>%
   mutate(`(Intercept)` = NULL)
 
@@ -68,6 +68,8 @@ SL.library <- c("SL.earth",
 # times at which to compute the confidence sequences
 times <- unique(round(logseq(1000, nrow(sepsis), n = 30)))
 t_opt = 1500
+alpha <- 0.1
+
 
 cs_unadj <-
   confseq_ate_unadjusted(
@@ -75,6 +77,7 @@ cs_unadj <-
     treatment = treatment,
     propensity_score = mean(sepsis$fluids_lt6L_24h),
     t_opt = t_opt,
+    alpha = alpha,
     times = times
   )
 
@@ -89,6 +92,7 @@ cs_glm <- confseq_ate(
     get_SL_fn(SL.library = c('SL.glm'),
               family = binomial()),
   t_opt = t_opt,
+  alpha = alpha,
   times = times,
   n_cores = 8,
   cross_fit = TRUE
@@ -103,6 +107,7 @@ cs_SL <- confseq_ate(
   propensity_score_fn = get_SL_fn(SL.library = SL.library,
                                   family = binomial()),
   t_opt = t_opt,
+  alpha = alpha,
   times = times,
   n_cores = 8,
   cross_fit = TRUE

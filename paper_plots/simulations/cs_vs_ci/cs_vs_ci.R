@@ -3,7 +3,7 @@ library(parallel)
 n <- 100000
 start_time <- 500
 t_opt <- 1000
-alpha <- 0.05
+alpha <- 0.1
 p_1 <- 0.8
 p_2 <- 0.4
 prop <- 0.5
