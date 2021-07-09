@@ -38,7 +38,6 @@ pseudo_outcome_abstract <- function(y,
 #' Doubly-robust variables at many timepoints for binary treatment given nuisance function estimators.
 #'
 #' @importFrom stats rbinom
-#' @importFrom progress progress_bar
 #' @param y The measured outcome (a real vector).
 #' @param X Measured covariates (an nxd real matrix where `n = length(y)`)
 #' @param treatment Whether the subject received treatment
@@ -108,13 +107,12 @@ pseudo_outcome_sequential <- function(y,
     train_indices <- list(train_idx)
   }
 
-  pb <- progress_bar$new(total = length(unlist(train_indices)),
-                         clear = TRUE)
-
   variables_list <- mclapply(times, function(time) {
     # This unlist(lapply(...)) looks a bit strange, but it is
     # necessary for when the user wishes to perform cross-fitting.
     # See above if/else statement.
+
+    print(paste("Fitting nuisance functions at time", time))
 
     unlist(lapply(train_indices, function(train_idx) {
       train_idx_t <- train_idx == TRUE
@@ -131,12 +129,14 @@ pseudo_outcome_sequential <- function(y,
       treatment_train <- treatment[train_idx_t]
       treatment_eval <- treatment[eval_idx_t]
 
-      reg_1_est <- regression_fn_1(y = y_train[treatment_train == 1],
-                                   X = X_train[treatment_train == 1,],
-                                   newX = X_eval)
-      reg_0_est <- regression_fn_0(y = y_train[treatment_train == 0],
-                                   X = X_train[treatment_train == 0,],
-                                   newX = X_eval)
+      reg_1_est <-
+        regression_fn_1(y = y_train[treatment_train == 1],
+                        X = X_train[treatment_train == 1,],
+                        newX = X_eval)
+      reg_0_est <-
+        regression_fn_0(y = y_train[treatment_train == 0],
+                        X = X_train[treatment_train == 0,],
+                        newX = X_eval)
       pi_est <- propensity_score_fn(y = as.numeric(treatment_train),
                                     X = X_train,
                                     newX = X_eval)
@@ -148,7 +148,7 @@ pseudo_outcome_sequential <- function(y,
         propensity_score = pi_est,
         treatment = treatment_eval
       )
-      pb$tick()
+
       return(variables)
     }))
   }, mc.cores = n_cores)

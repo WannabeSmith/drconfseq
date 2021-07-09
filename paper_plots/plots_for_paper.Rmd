@@ -2,7 +2,9 @@
 title: "Plots for paper"
 author: "Ian Waudby-Smith"
 date: "08/02/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +26,7 @@ palette <- "Set2"
 alpha <- 0.05
 
 figures_dir = here('paper_plots/figures/')
-computations_dir = here('paper_plots/computations')
+simulations_dir = here('paper_plots/computations/simulations')
 ```
 
 
@@ -33,12 +35,10 @@ computations_dir = here('paper_plots/computations')
 
 ```{r}
 # Load miscoverage_rates
-load(here(computations_dir, 'start_time/start_time.RData'))
+load(here(simulations_dir, 'start_time/start_time.RData'))
 
 n <- as.integer(names(miscoverage_rates)[[1]]) +
   length(miscoverage_rates[[1]]) - 1
-
-load('../computations/start_time/alpha.RData')
 
 plt_data_lines <- as.integer(names(miscoverage_rates)) %>%
   map(function(start_time){
@@ -75,7 +75,6 @@ plt
 
 ```{r}
 t_opts <- c(100, 500, 1000, 5000)
-#t <- c(shape_points, logseq(1, 1000000, n = 10000))
 t <- 100:10000
 shape_points <- seq(min(t), max(t), length.out = 6)
 
@@ -118,7 +117,7 @@ plt
 # Unadjusted CSs vs CIs for the ATE in randomized experiments
 
 ```{r}
-load(here(computations_dir, 'cs_vs_ci/cs_vs_ci.RData'))
+load(here(simulations_dir, 'cs_vs_ci/cs_vs_ci.RData'))
 
 l_acs <- acs$l[start_time:n]
 u_acs <- acs$u[start_time:n]
@@ -126,7 +125,7 @@ u_acs <- acs$u[start_time:n]
 l_clt <- clt$l[start_time:n]
 u_clt <- clt$u[start_time:n]
 
-t = unique(round(logseq(x1 = start_time, x2 = n, n = 10000)))
+t = unique(round(logseq(from = start_time, to = n, n = 10000)))
 
 plot_df <- data.frame(t = rep(t, 4), 
                       bound = c(l_acs[t - start_time + 1],
@@ -201,7 +200,7 @@ ggsave(here(figures_dir, 'miscoverage.pdf'), plot = plt_both,
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load(here(computations_dir,
+load(here(simulations_dir,
      'randomized_experiment_SL/randomized_experiment_SL.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
@@ -247,7 +246,7 @@ plt_cs
 ```{r, echo=FALSE}
 library(ggplot2)
 
-load(here(computations_dir, 'observational_study_SL/observational_study_SL.RData'))
+load(here(simulations_dir, 'observational_study_SL/observational_study_SL.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -289,7 +288,8 @@ plt_cs
 ## Sepsis example
 
 ```{r}
-load(here(computations_dir, '/sepsis/sepsis_cs.RData'))
+sepsis_dir = here('paper_plots/computations/sepsis')
+load(here(sepsis_dir, '/sepsis_cs.RData'))
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(cs_SL$l, cs_SL$u,

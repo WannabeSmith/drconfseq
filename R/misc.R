@@ -115,6 +115,12 @@ get_cumul_miscoverage_rate <-
       u <- conf_sets$u[times]
       miscoverage <- cummax(l > mu | u < mu)
       stopifnot(all(!is.na(miscoverage)))
+
+      if (i %% as.integer(0.1 * num_repeats) == 0)
+      {
+        print(paste(
+          "Finished simulation", i, "out of", num_repeats, sep = " "))
+      }
       return(miscoverage)
     }, mc.cores = n_cores)
 

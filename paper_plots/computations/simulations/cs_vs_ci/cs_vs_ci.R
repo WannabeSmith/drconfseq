@@ -1,6 +1,6 @@
 library(sequential.causal)
 library(parallel)
-n <- 1000000
+n <- 100000
 start_time <- 500
 t_opt <- 1000
 alpha <- 0.05
@@ -30,6 +30,7 @@ clt_fn <-
     naive_confidence_intervals(x = y, return_all_times = TRUE)
   }
 
+print("Simulating time-uniform confidence sequence miscoverage...")
 acs_miscoverage <-
   get_cumul_miscoverage_rate(
     data_generator_fn = data_generator_fn,
@@ -39,6 +40,7 @@ acs_miscoverage <-
     mu = p_1 - p_2,
     n_cores = parallel::detectCores()
   )
+print("Simulating fixed-time confidence interval miscoverage...")
 clt_miscoverage <-
   get_cumul_miscoverage_rate(
     data_generator_fn = data_generator_fn,

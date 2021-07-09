@@ -11,7 +11,7 @@ X_data <- X_mtx %>%
   as.data.frame() %>%
   mutate(V1 = NULL)
 
-beta_mu <- c(1, -1, -2, 3)
+beta_mu <- c(1,-1,-2, 3)
 
 reg_true <- function(x)
 {
@@ -32,13 +32,14 @@ y <- reg_observed + treatment * ATE + rt(n, df = 5)
 sl_reg_1 <- get_SL_fn()
 
 # Do the same for $\mu^0$.
-sl_reg_0 <- get_SL_fn()
+sl_reg_0 <- sl_reg_1
 
 # Get SuperLearner prediction function for $\pi$
 pi_fn <- get_SL_fn(family = binomial)
 
 # Get GLM superlearner
 glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
+glm_reg_0 <- glm_reg_1
 
 
 times <- unique(round(logseq(250, 10000, n = 30)))
@@ -55,7 +56,7 @@ confseq_SL <-
     X_data,
     treatment,
     regression_fn_1 = sl_reg_1,
-    regression_fn_0 = sl_reg_1,
+    regression_fn_0 = sl_reg_0,
     propensity_score_fn = function(y, X, newX) {
       1 / 2
     },
@@ -72,7 +73,7 @@ confseq_glm <-
     X_data,
     treatment,
     regression_fn_1 = glm_reg_1,
-    regression_fn_0 = glm_reg_1,
+    regression_fn_0 = glm_reg_0,
     propensity_score_fn = function(y, X, newX) {
       1 / 2
     },
