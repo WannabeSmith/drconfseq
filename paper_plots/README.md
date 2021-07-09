@@ -5,9 +5,9 @@ Here we describe how to reproduce the plots in [Doubly robust confidence sequenc
 2. [Analyze sepsis data](todo) (optional), and
 3. Generate plots from the output of steps 1 and 2.
 
-The sepsis data analysis is labeled as "optional" because it requires access to, and extracting from, the [MIMIC-III](https://mimic.mit.edu/docs/iii/) database, which requires significant memory and computational resources. For instructions on how to extract data from MIMIC-III, see [this tutorial](todo).
+The sepsis data analysis is labeled as "optional" because it requires access to, and extracting from, the [MIMIC-III](https://mimic.mit.edu/docs/iii/) database, which requires significant memory and computational resources. For instructions on how to extract data from MIMIC-III, see the README found in [this folder](computations/sepsis).
 
-# 1. Run simulations
+## 1. Run simulations
 
 First, make sure that `sequential.causal` is installed in your R environment:
 
@@ -44,11 +44,11 @@ Rscript observational_study_SL.R
 
 and so on.
 
-# 2. Analyze sepsis data (optional)
+## 2. Analyze sepsis data (optional)
 
-See [this tutorial](todo)
+See the README in [this folder](computations/sepsis).
 
-# 3. Generate plots
+## 3. Generate plots
 
 Open `sequential.causal/paper_plots/plots_for_paper.Rmd` with RStudio and run the chunks sequentially. Alternatively you can simply knit the Rmd file.
 
