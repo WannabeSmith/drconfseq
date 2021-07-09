@@ -2,7 +2,7 @@
 
 Here we describe how to reproduce the plots in [Doubly robust confidence sequences for sequential causal inference](https://arxiv.org/pdf/2103.06476.pdf). This is broken up into three steps:
 1. Run simulations,
-2. [Analyze sepsis data](todo) (optional), and
+2. [Analyze sepsis data](sepsis) (optional), and
 3. Generate plots from the output of steps 1 and 2.
 
 The sepsis data analysis is labeled as "optional" because it requires access to, and extracting from, the [MIMIC-III](https://mimic.mit.edu/docs/iii/) database, which requires significant memory and computational resources. For instructions on how to extract data from MIMIC-III, see the README found in [this folder](sepsis).
