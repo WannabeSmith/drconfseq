@@ -1,31 +1,37 @@
+---
+title: "drconfseq"
+output:
+  md_document:
+    variant: gfm
+---
+
+\newcommand{\EE}{\mathbb E}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 # drconfseq: Doubly robust confidence sequences
 
-This package implements doubly robust confidence sequences which provide
-safe, anytime-valid inference for the average treatment effect (ATE)
-from sequential data. These allow you to
+This package implements doubly robust confidence sequences which provide safe,
+anytime-valid inference for the average treatment effect (ATE) from sequential data.
+These allow you to
 
-1.  Update inferences about the ATE as new data become available;
-2.  Continuously monitor studies and adaptively stop or continue them
-    for any reason; and
-3.  Control the type-I error at all stopping times, including random or
-    data-dependent times.
+1. Update inferences about the ATE as new data become available;
+2. Continuously monitor studies and adaptively stop or continue them for any reason; and
+3. Control the type-I error at all stopping times, including random or data-dependent times.
 
-Furthermore, these confidence sequences can be used in both randomized
-sequential experiments and observational studies with no unmeasured
-confounding.
+Furthermore, these confidence sequences can be used in both randomized sequential experiments and observational studies with no unmeasured confounding. 
 
-The main methodological reference is
+The main methodological reference is 
 
--   Waudby-Smith, I., Arbour, D., Sinha, R., Kennedy, E. H., &
-    Ramdas, A. (2021). Doubly robust confidence sequences for sequential
-    causal inference. arXiv preprint
-    [arXiv:2103.06476](https://arxiv.org/pdf/2103.06476.pdf).
+- Waudby-Smith, I., Arbour, D., Sinha, R., Kennedy, E. H., & Ramdas, A. (2021). Doubly robust confidence sequences for sequential causal inference. arXiv preprint [arXiv:2103.06476](https://arxiv.org/pdf/2103.06476.pdf). 
 
 ## Installation
 
 You can install the package using `devtools`:
 
-``` r
+```{r, eval=FALSE}
 # Install devtools if you do not have it:
 install.packages("devtools")
 
@@ -35,41 +41,39 @@ devtools::install_github("wannabesmith/drconfseq")
 
 ## Example usage
 
-Let’s jump into a simple example taken from [“Doubly-robust confidence
-sequences for sequential causal
-inference”](https://arxiv.org/pdf/2103.06476.pdf). Suppose that we wish
-to estimate the ATE in an observational setting with no unmeasured
-confounding.
+Let's jump into a simple example taken from ["Doubly-robust confidence sequences for sequential causal inference"](https://arxiv.org/pdf/2103.06476.pdf). Suppose that we wish to estimate the ATE in an observational setting with no unmeasured confounding.
 
-``` r
+```{r, warning=FALSE, message=FALSE}
 library(drconfseq)
 
 # Optional, can be used to speed up computations
 library(parallel)
 ```
 
-First, we will generate *n* = 10<sup>4</sup> observations each with 3
-real-valued covariates from a trivariate Gaussian.
+First, we will generate $n = 10^4$ observations each with 3 real-valued covariates from a trivariate Gaussian.
 
-``` r
+```{r}
 n <- 10000
 d <- 3
 X <- cbind(1, matrix(rnorm(n*d), nrow = n))
 ```
 
-Randomly assign subjects to treatment or control groups with equal
-probability.
+Randomly assign subjects to treatment or control groups with equal probability.
 
-``` r
+```{r}
 treatment <- rbinom(n = n, size = 1, prob = 1 / 2)
 ```
 
-Define the regression function, and the target parameter (which we will
-ensure is the average treatment effect by design),
+Define the regression function,
+\begin{equation}
+\label{eq:simulationRegressionFunction}
+    f^\star(x_1, x_2, x_3) := 1 - x_1^2 - 2\sin(x_2) + 3|x_3|, 
+\end{equation} 
+and the target parameter (which we will ensure is the average treatment effect by design),
 
-*A**T**E* := 1.
+\[ \mathrm{ATE} := 1. \]
 
-``` r
+```{r}
 beta_mu <- c(1, -1, -2, 3)
 
 mu <- function(x)
@@ -80,37 +84,26 @@ mu <- function(x)
 ATE <- 1
 ```
 
-Finally, generate outcomes *y*<sub>1</sub>, …, *y*<sub>*n*</sub> as
+Finally, generate outcomes $y_1, \dots, y_n$ as 
 
-*y*<sub>*i*</sub> := *f*<sup>⋆</sup>(*x*<sub>*i*, 1</sub>, *x*<sub>*i*, 2</sub>, *x*<sub>*i*, 3</sub>) + *A**T**E* ⋅ *t**r**e**a**t**m**e**n**t*<sub>*i*</sub> + *ϵ*<sub>*i*</sub>,
+\[ y_i := f^\star(x_{i, 1}, x_{i, 2}, x_{i,3}) + \mathrm{ATE}\cdot \mathrm{treatment}_i + \epsilon_i, \]
 
-where *ϵ*<sub>*i*</sub> ∼ *t*<sub>5</sub> are drawn from a
-*t*-distribution with 5 degrees of freedom.
+where $\epsilon_i \sim t_{5}$ are drawn from a $t$-distribution with 5 degrees of freedom.
 
-``` r
+```{r}
 y <- apply(X, MARGIN=1, FUN=mu) + treatment*ATE + rt(n, df=5)
 ```
 
-We will build three estimators for the ATE with increasing degrees of
-complexity.
+We will build three estimators for the ATE with increasing degrees of complexity.
 
-1.  **Unadjusted**: uses the constant function 0 for the outcome
-    regression. This is equivalent to an inverse-probability-weighted
-    estimator.
-2.  **Parametric**: estimates the outcome regression with a linear
-    model.
-3.  **Super Learner**: estimates the outcome regression with a “Super
-    Learner” weighted average of linear models and other machine
-    learning algorithms including regression splines, random forests,
-    and generalized additive models.
+1. **Unadjusted**: uses the constant function $0$ for the outcome regression. This is equivalent to an inverse-probability-weighted estimator.
+2. **Parametric**: estimates the outcome regression with a linear model.
+3. **Super Learner**: estimates the outcome regression with a "Super Learner" weighted average of linear models and other machine learning algorithms including regression splines, random forests, and generalized additive models.
 
-Since we are in a randomized experiments, all three estimators will
-consistently estimate and provide valid sequential inference for the
-ATE. However, since the underlying regression function is nonlinear, we
-expect the Super Learner to outperform the Parametric to outperform the
-Unadjusted.
+Since we are in a randomized experiments, all three estimators will consistently estimate and provide valid sequential inference for the ATE. However, since the underlying regression function is nonlinear, we expect the Super Learner to outperform the Parametric to outperform the Unadjusted.
 
-``` r
+```{r, cache = TRUE}
+
 # Get SuperLearner prediction function for $\mu^1$.
 sl_reg_1 <- get_SL_fn(SL.library = c("SL.earth", "SL.gam", "SL.glm", "SL.ranger"))
 
@@ -149,7 +142,7 @@ confseq_unadj <- confseq_ate_unadjusted(y = y, treatment = treatment,
 
 Let us now plot the confidence sequence.
 
-``` r
+```{r, message = FALSE, fig.width=8, fig.height=4}
 library(ggplot2)
 
 plot_df <- data.frame(t = rep(times, 6), 
@@ -186,31 +179,24 @@ plt_cs <-
 plt_cs
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
 ## Run unit tests
 
 First, clone the repository:
 
-``` zsh
+```{zsh, eval=FALSE}
 git clone git@github.com:WannabeSmith/drconfseq.git
 ```
 
 Then in an R console, run
 
-``` r
+```{r, eval=FALSE}
 devtools::check("path/to/drconfseq")
 ```
 
-## Reproduce the paper’s plots
+## Reproduce the paper's plots
 
 See the README in [this folder](paper_plots).
 
 ## Credits
 
-The methods implemented in this package were developed by [Ian
-Waudby-Smith](https://ian.waudbysmith.com), [David
-Arbour](https://darbour.github.io/), [Ritwik
-Sinha](https://research.adobe.com/person/ritwik-sinha/), [Edward H.
-Kennedy](http://ehkennedy.com), and [Aaditya
-Ramdas](http://stat.cmu.edu/~aramdas).
+The methods implemented in this package were developed by [Ian Waudby-Smith](https://ian.waudbysmith.com), [David Arbour](https://darbour.github.io/), [Ritwik Sinha](https://research.adobe.com/person/ritwik-sinha/), [Edward H. Kennedy](http://ehkennedy.com), and [Aaditya Ramdas](http://stat.cmu.edu/~aramdas).
