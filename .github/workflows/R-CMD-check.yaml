@@ -35,7 +35,7 @@ jobs:
           # OS-specific dependencies
           if [ "$RUNNER_OS" == "Linux" ]; then
             # Installation of curl within R fails because libcurl-dev is missing
-            sudo apt install libcurl-dev
+            sudo apt-get install libcurl4-openssl-dev
           fi
         shell: bash
       - name: Install R dependencies
