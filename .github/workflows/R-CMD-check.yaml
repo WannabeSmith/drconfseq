@@ -30,7 +30,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v1
-      - name: Install dependencies
+      - name: Install OS dependencies
+        run: |
+          # OS-specific dependencies
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            # Installation of curl within R fails because libcurl4-openssl-dev is missing
+            sudo apt-get install libcurl4-openssl-dev
+          fi
+        shell: bash
+      - name: Install R dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
           remotes::install_deps(dependencies = TRUE)
