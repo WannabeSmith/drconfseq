@@ -34,11 +34,11 @@ jobs:
         run: |
           # OS-specific dependencies
           if [ "$RUNNER_OS" == "Linux" ]; then
-            # Installation of curl within R fails because libcurl is missing
-            sudo apt install libcurl
+            # Installation of curl within R fails because libcurl-dev is missing
+            sudo apt install libcurl-dev
           fi
         shell: bash
-      - name: Install dependencies
+      - name: Install R dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
           remotes::install_deps(dependencies = TRUE)
