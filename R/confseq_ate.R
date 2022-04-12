@@ -48,7 +48,8 @@ confseq_ate <- function(y,
                         alpha = 0.05,
                         times = NULL,
                         n_cores = 1,
-                        cross_fit = TRUE)
+                        cross_fit = TRUE,
+                        lyapunov = FALSE)
 {
   # Get the 'doubly-robust ATE' variables as a list for each time in times
   # If times is NULL, this will just compute the variables for time n.
@@ -67,17 +68,30 @@ confseq_ate <- function(y,
     )
 
   # Compute the confidence sequence at each of these times
-  confseq_list <-
-    mclapply(pseudo_outcome_list, function(pseudo_outcomes) {
-      acs <- asymptotic_confseq(
-        pseudo_outcomes,
-        t_opt = t_opt,
-        alpha = alpha,
-        return_all_times = FALSE
-      )
-      return(c(acs$l, acs$u))
-    }, mc.cores = n_cores)
-
+  if (lyapunov) {
+    rho2 <- best_rho2_exact(t_opt = t_opt, alpha_opt = alpha)
+    confseq_list <-
+      mclapply(pseudo_outcome_list, function(pseudo_outcomes) {
+        acs <- lyapunov_asympcs(
+          pseudo_outcomes,
+          rho2 = rho2,
+          alpha = alpha,
+          return_all_times = FALSE
+        )
+        return(c(acs$l, acs$u))
+      }, mc.cores = n_cores)
+  } else {
+    confseq_list <-
+      mclapply(pseudo_outcome_list, function(pseudo_outcomes) {
+        acs <- asymptotic_confseq(
+          pseudo_outcomes,
+          t_opt = t_opt,
+          alpha = alpha,
+          return_all_times = FALSE
+        )
+        return(c(acs$l, acs$u))
+      }, mc.cores = n_cores)
+  }
   confseq <- data.frame(do.call(rbind, confseq_list))
   colnames(confseq) <- c('l', 'u')
   rownames(confseq) <- times
@@ -106,7 +120,8 @@ confseq_ate_unadjusted <- function(y,
                                    t_opt,
                                    propensity_score = NULL,
                                    alpha = 0.05,
-                                   times = NULL)
+                                   times = NULL,
+                                   lyapunov = FALSE)
 {
   if (is.null(propensity_score))
   {
@@ -124,8 +139,20 @@ confseq_ate_unadjusted <- function(y,
       treatment = treatment
     )
 
-  cs <- asymptotic_confseq(pseudo_outcome, t_opt = t_opt,
-                           alpha = alpha)
+  if (lyapunov) {
+    rho2 = best_rho2_exact(t_opt = t_opt, alpha = alpha)
+    cs <- lyapunov_asympcs(pseudo_outcome,
+      rho2 = rho2,
+      alpha = alpha
+    )
+  } else {
+    cs <- asymptotic_confseq(pseudo_outcome,
+      t_opt = t_opt,
+      alpha = alpha
+    )
+  }
+
+
 
   df <- data.frame(l = cs$l,
                    u = cs$u,

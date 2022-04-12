@@ -144,6 +144,57 @@ asymptotic_confseq <- function(x,
               'u' = mu_hat_t + margin))
 }
 
+
+#' Lyapunov-style AsympCS
+#'
+#' @param x The observed data points (a real vector).
+#' @param alpha The significance level (a (0, 1)-valued real).
+#' @param rho The time for which the confidence sequence should be tightest.
+#' @param var The known or estimated variance of the observations, `x`.
+#'            If left `NULL`, then the empirical variance of `x` will be
+#'            taken (positive real-valued vector or `NULL`).
+#' @param return_all_times Should the CS be returned at
+#'                         every time point? (boolean)
+#' @return A list containing the following vectors: \cr
+#' \item{l}{The lower confidence sequence (a real vector).}
+#' \item{u}{The upper confidence sequence (a real vector).}
+#' @export
+lyapunov_asympcs <- function(x,
+                             rho2,
+                             alpha = 0.05,
+                             var_t = NULL,
+                             return_all_times = TRUE)
+{
+  stopifnot(rho2 > 0)
+  stopifnot(alpha > 0 && alpha < 1)
+
+  # If the user wants results for each time, use time from 1 to n.
+  # Otherwise, just use time n.
+  if (return_all_times)
+  {
+    t = seq(1, length(x))
+    mu_hat_t = cumul_mean(x)
+    if (is.null(var_t))
+      var_t <- cumul_var(x)
+  } else
+  {
+    t = length(x)
+    mu_hat_t = mean(x)
+    if (is.null(var_t))
+      var_t <- var(x)
+  }
+
+  margin <- sqrt(2 * (t * var_t * rho2 + 1) *
+                 log(sqrt(t * var_t * rho2 + 1) / alpha) / (t^2 * rho2))
+
+  # When the margin is NA, such as on the first observation, just return
+  # infinity
+  margin[is.na(margin)] <- Inf
+
+  return(list('l' = mu_hat_t - margin,
+              'u' = mu_hat_t + margin))
+}
+
 #' Plot ratio of confidence sequence to confidence interval widths
 #'
 #' @importFrom rlang .data

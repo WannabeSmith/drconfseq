@@ -21,9 +21,11 @@ library(drconfseq)
 
 plt_width = 18
 plt_height = 9
-theme_fn <- theme_minimal
+global_theme <- theme_classic() +
+  theme(axis.line = element_line(colour = "gray"),
+        axis.ticks = element_line(colour = "gray"))
 palette <- "Set2"
-alpha <- 0.05
+alpha <- 0.1
 
 figures_dir = here('paper_plots/figures/')
 simulations_dir = here('paper_plots/simulations')
@@ -140,6 +142,7 @@ plot_df <- data.frame(t = rep(t, 4),
 
 plt_cs <- 
   ggplot() + 
+  global_theme +
   geom_line(aes(x=t, y=bound, color=type, linetype=type), 
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=type, linetype=type), 
@@ -151,10 +154,11 @@ plt_cs <-
                                               function(x) 10^x),
                 labels = scales::trans_format("log10",
                                               scales::math_format(10^.x))) +
-  annotation_logticks(colour = "grey", side = "b") + 
-  theme_fn() + theme(legend.position='none',
-                     text = element_text(family="serif")) +
-  scale_color_brewer(palette=palette)
+  annotation_logticks(colour = "grey", side = "b") +
+  theme(legend.position='none',
+                     text = element_text(family="serif")
+                     ) +
+  scale_color_brewer(palette = palette)
 # Miscoverage
 
 plot_df <- data.frame(t = rep(t, 2),
@@ -166,19 +170,19 @@ plot_df <- data.frame(t = rep(t, 2),
                                    length(t))))
 
 plt_miscoverage <- ggplot(plot_df) + 
+  global_theme +
   geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
   geom_hline(aes(yintercept=alpha), linetype='dashed', color='gray') + 
   ylab('Cumulative miscoverage rate') + xlab('Time') +
-  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1)) +
+  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1), name="") +
   scale_x_log10(breaks = scales::trans_breaks("log10",
                                               function(x) 10^x),
                 labels = scales::trans_format("log10",
                                               scales::math_format(10^.x))) +
-  annotation_logticks(colour = "grey", side = "b") + 
-  theme_fn() +
-  theme(legend.position=c(0.75, 0.4),
+  annotation_logticks(colour = "grey", side = "b") +
+  theme(legend.position=c(0.75, 0.42),
         text = element_text(family="serif")) +
-  scale_color_brewer(palette=palette)
+  scale_color_brewer(palette = palette, name="")
 
 plt_both <- grid.arrange(plt_cs, plt_miscoverage, nrow=1)
 
@@ -187,16 +191,109 @@ ggsave(here(figures_dir, 'miscoverage.pdf'), plot = plt_both,
 
 ```
 
+# Time-varying distributions
+```{r}
+library(latex2exp)
+load(here(simulations_dir, 'time_varying/time_varying.RData'))
+
+start_time_plot <- 100
+n_granular <- 1000
+t_plot <- unique(round(logseq(from=start_time_plot, to=N, n=n_granular)))
+
+cs_plot_df <- data.frame("time" = rep(t[t_plot], 2),
+                      "bound" = c(lower_cs_lyapunov[t_plot],
+                                  upper_cs_lyapunov[t_plot]),
+                      "upper_lower" = c(rep("l", length(t_plot)),
+                                        rep("u", length(t_plot))),
+                      "type" = rep("widetilde_C_t", 2 * length(t_plot)))
+
+mu_plot_df <- data.frame("time" = t[t_plot],
+                         "mu" = mu_t_tilde[t_plot],
+                         "type" = rep("widetilde_mu_t", length(t_plot)))
+
+
+plt_timevarying <- ggplot() +
+  global_theme +
+  geom_line(aes(x = time, y = bound, color = type, linetype = type),
+    data = cs_plot_df[cs_plot_df$upper_lower == "l", ]
+  ) +
+  geom_line(aes(x = time, y = bound, color = type, linetype = type),
+    data = cs_plot_df[cs_plot_df$upper_lower == "u", ]
+  ) +
+  geom_line(aes(
+    x = time,
+    y = mu,
+    color = type, linetype = type
+  ),
+  data = mu_plot_df
+  ) +
+  ## geom_line(aes(x = t[t_plot], y = mu, linetype = type), data = mu_plot_df) +
+  ylab(TeX("Confidence sequence for $\\widetilde{\\mu}_t$")) +
+  xlab(TeX("Time $t$")) +
+  ## scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1)) +
+  ## xlim(100, N) + ylim(0.3, 1.1) +
+  scale_x_log10(
+    breaks = scales::trans_breaks(
+      "log10",
+      function(x) 10^x
+    ),
+    labels = scales::trans_format(
+      "log10",
+      scales::math_format(10^.x)
+    )
+  ) +
+  ylim(0.1, 0.9) +
+  annotation_logticks(colour = "grey", side = "b") +
+  theme(
+    ## legend.position = c(0.78, 0.68),
+    text = element_text(family = "serif")
+  ) +
+  scale_color_manual(
+    values = c("#a1a1ed", "gray"),
+    labels = c(
+      unname(TeX("$\\widetilde{C}_t$$")),
+      unname(TeX("$\\widetilde{\\mu}_t$"))
+    ), name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("solid", "dotted"),
+    labels = c(
+      unname(TeX("$\\widetilde{C}_t$$")),
+      unname(TeX("$\\widetilde{\\mu}_t$"))
+    ), name = ""
+  )
+
+plt_timevarying
+ggsave(here(figures_dir, 'CS_wavy.pdf'),
+       width=plt_width, height=plt_height, units='cm')
+```
 
 # Confidence sequences for the average treatment effect
 
-## Randomized experiments
+```{r}
+legend_breaks = c(
+  "Unadjusted", "Parametric", "Super Learner", "ATE_t"
+)
+color_values = c("#86cfa7", "#a1a1ed", "#f26f87", "darkgray")
+linetype_values = c("dashed", "solid", "dotdash", "dotted")
+```
+
+## IID
+
+### Randomized experiments
 
 ```{r, echo=FALSE}
 library(ggplot2)
 
 load(here(simulations_dir,
      'randomized_experiment_SL/randomized_experiment_SL.RData'))
+
+legend_labels <- c(
+  unname("Unadjusted"),
+  unname("Parametric"),
+  unname("Super Learner"),
+  unname(TeX("$\\psi$"))
+)
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
@@ -214,12 +311,156 @@ plot_df <- data.frame(t = rep(times, 6),
 
 plt_cs <- 
   ggplot() + 
+  global_theme +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='u',]) +
-  geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
-  ylab('Confidence sequences for the\naverage treatment effect') +
+  geom_line(aes(
+    x = times,
+    y = rep(ATE, length(times)),
+    color = "ATE_t", linetype = "ATE_t"
+  )) +
+  ylab('Confidence sequences for\nthe average treatment effect') +
+  xlab('Time') +
+  scale_x_log10(breaks = scales::trans_breaks("log10",
+                                              function(x) 10^x),
+                labels = scales::trans_format("log10",
+                                              scales::math_format(10^.x))) +
+  annotation_logticks(colour = "grey", side = "b") + 
+  theme(text = element_text(family="serif")) +
+  # scale_color_brewer(palette=palette) + 
+  scale_color_manual(
+    values = color_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  ) +
+  scale_linetype_manual(
+    values = linetype_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  )
+
+ggsave(here(figures_dir, 'CS_randomized.pdf'),
+       width=plt_width, height=plt_height, units='cm')
+plt_cs
+
+```
+
+### Observational studies
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(latex2exp)
+
+load(here(simulations_dir, 'observational_study_SL/observational_study_SL.RData'))
+
+legend_labels <- c(
+  unname("Unadjusted"),
+  unname("Parametric"),
+  unname("Super Learner"),
+  unname(TeX("$\\psi$"))
+)
+
+plot_df <- data.frame(t = rep(times, 6), 
+                      bound = c(confseq_SL$l, confseq_SL$u,
+                                confseq_glm$l, confseq_glm$u,
+                                confseq_unadj$l, confseq_unadj$u),
+                      upper_lower = c(rep('l', length(confseq_SL$l)),
+                                      rep('u', length(confseq_SL$u)),
+                                      rep('l', length(confseq_glm$l)),
+                                      rep('u', length(confseq_glm$u)),
+                                      rep('l', length(confseq_unadj$u)),
+                                      rep('u', length(confseq_unadj$u))),
+                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
+                               rep('Parametric', 2*length(confseq_glm$l)),
+                               rep('Unadjusted', 2*length(confseq_unadj$l))))
+
+plt_cs <- 
+  ggplot() + 
+  global_theme +
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='l',]) +
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='u',]) +
+  geom_line(aes(
+    x = times,
+    y = rep(ATE, length(times)),
+    color = "ATE_t", linetype = "ATE_t"
+  )) +
+  # geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
+  ylab('Confidence sequences for\nthe average treatment effect') + xlab('Time') +
+  scale_x_log10(breaks = scales::trans_breaks("log10",
+                                              function(x) 10^x),
+                labels = scales::trans_format("log10",
+                                              scales::math_format(10^.x))) +
+  annotation_logticks(colour = "grey", side = "b") + 
+  theme(text = element_text(family="serif")) +
+  # scale_color_brewer(palette=palette) +
+  scale_color_manual(
+    values = color_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  ) +
+  scale_linetype_manual(
+    values = linetype_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  )
+
+ggsave(here(figures_dir, 'CS_observational.pdf'),
+       width=plt_width, height=plt_height, units='cm')
+plt_cs
+
+```
+
+## Lyapunov-type
+
+```{r}
+library(ggplot2)
+library(latex2exp)
+
+load(here(simulations_dir, "time_varying_ate_randomized/time_varying_ate_randomized.RData"))
+
+legend_labels <- c(
+  unname("Unadjusted"),
+  unname("Parametric"),
+  unname("Super Learner"),
+  unname(TeX("$\\widetilde{\\psi}_t$"))
+)
+
+plot_df <- data.frame(t = rep(times, 6), 
+                      bound = c(confseq_SL$l, confseq_SL$u,
+                                confseq_glm$l, confseq_glm$u,
+                                confseq_unadj$l, confseq_unadj$u),
+                      upper_lower = c(rep('l', length(confseq_SL$l)),
+                                      rep('u', length(confseq_SL$u)),
+                                      rep('l', length(confseq_glm$l)),
+                                      rep('u', length(confseq_glm$u)),
+                                      rep('l', length(confseq_unadj$u)),
+                                      rep('u', length(confseq_unadj$u))),
+                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
+                               rep('Parametric', 2*length(confseq_glm$l)),
+                               rep('Unadjusted', 2*length(confseq_unadj$l))))
+
+ATE_plot_df <- data.frame("time" = times,
+                         "ate_t" = ATE_t_tilde[times],
+                         "type" = rep("ATE_t", length(times)))
+plt_cs <- 
+  ggplot() + 
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='l',]) +
+  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
+            data=plot_df[plot_df$upper_lower=='u',]) +
+  geom_line(aes(
+    x = time,
+    y = ate_t,
+    color = type, linetype = type
+  ),
+  data = ATE_plot_df
+  ) +
+  ## geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
+  ylab('Confidence sequences for the\ntime-varying treatment effect') +
   xlab('Time') +
   scale_x_log10(breaks = scales::trans_breaks("log10",
                                               function(x) 10^x),
@@ -228,56 +469,21 @@ plt_cs <-
   annotation_logticks(colour = "grey", side = "b") + 
   theme_fn() + 
   theme(text = element_text(family="serif")) +
-  scale_color_brewer(palette=palette)
+  scale_color_manual(
+    values = color_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  ) +
+  scale_linetype_manual(
+    values = linetype_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  )
 
-ggsave(here(figures_dir, 'CS_randomized.pdf'),
+ggsave(here(figures_dir, 'CS_Lyapunov_randomized.pdf'),
        width=plt_width, height=plt_height, units='cm')
+
 plt_cs
-
-```
-
-## Observational studies
-
-```{r, echo=FALSE}
-library(ggplot2)
-
-load(here(simulations_dir, 'observational_study_SL/observational_study_SL.RData'))
-
-plot_df <- data.frame(t = rep(times, 6), 
-                      bound = c(confseq_SL$l, confseq_SL$u,
-                                confseq_glm$l, confseq_glm$u,
-                                confseq_unadj$l, confseq_unadj$u),
-                      upper_lower = c(rep('l', length(confseq_SL$l)),
-                                      rep('u', length(confseq_SL$u)),
-                                      rep('l', length(confseq_glm$l)),
-                                      rep('u', length(confseq_glm$u)),
-                                      rep('l', length(confseq_unadj$u)),
-                                      rep('u', length(confseq_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
-                               rep('Parametric', 2*length(confseq_glm$l)),
-                               rep('Unadjusted', 2*length(confseq_unadj$l))))
-
-plt_cs <- 
-  ggplot() + 
-  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
-            data=plot_df[plot_df$upper_lower=='l',]) +
-  geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
-            data=plot_df[plot_df$upper_lower=='u',]) +
-  geom_hline(yintercept=ATE, linetype='dashed', color='gray') +
-  ylab('Confidence sequences for the\naverage treatment effect') + xlab('Time') +
-  scale_x_log10(breaks = scales::trans_breaks("log10",
-                                              function(x) 10^x),
-                labels = scales::trans_format("log10",
-                                              scales::math_format(10^.x))) +
-  annotation_logticks(colour = "grey", side = "b") + 
-  theme_fn() + 
-  theme(text = element_text(family="serif")) +
-  scale_color_brewer(palette=palette)
-
-ggsave(here(figures_dir, 'CS_observational.pdf'),
-       width=plt_width, height=plt_height, units='cm')
-plt_cs
-
 ```
 
 ## Sepsis example
@@ -285,6 +491,12 @@ plt_cs
 ```{r}
 sepsis_dir = here('paper_plots/sepsis')
 load(here(sepsis_dir, '/sepsis_cs.RData'))
+
+legend_breaks = c(
+  "Unadjusted", "Parametric", "Super Learner"
+)
+color_values = c("#86cfa7", "#a1a1ed", "#f26f87")
+linetype_values = c("dashed", "solid", "dotdash")
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(cs_SL$l, cs_SL$u,
@@ -312,7 +524,16 @@ plt_cs <-
   xlim(1000, times[length(times)]) +
   theme_fn() + 
   theme(text = element_text(family="serif")) +
-  scale_color_brewer(palette=palette)
+  scale_color_manual(
+    values = color_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  ) +
+  scale_linetype_manual(
+    values = linetype_values,
+    breaks = legend_breaks,
+    labels = legend_labels, name = ""
+  )
 
 ggsave(here(figures_dir, 'sepsis.pdf'),
        width=plt_width, height=plt_height, units='cm')

@@ -3,9 +3,13 @@ library(parallel)
 library(dtplyr)
 library(dplyr, warn.conflicts = FALSE)
 
-ATE <- 1
-n = 10000
+n <- 10000
+alpha <- 0.1
+t <- 1:n
 start_time <- 500
+ATE_t <- (1 - sin(2 * log(exp(1) + 10*t)) / log(exp(1) + 0.001*t)) / 2
+ATE_t_tilde <- cumsum(ATE_t) / t
+
 d = 3
 X_mtx <- cbind(1, matrix(rnorm(n * d), nrow = n))
 X_data <- X_mtx %>%
@@ -26,7 +30,7 @@ prop_score_true <- function(x) {
 reg_observed <- apply(X_mtx, MARGIN = 1, FUN = reg_true)
 p <- apply(X_mtx, MARGIN = 1, FUN = prop_score_true)
 treatment <- rbinom(n, 1, p)
-y <- reg_observed + treatment * ATE + rt(n, df = 5)
+y <- reg_observed + treatment * ATE_t + rnorm(n)
 
 # Get SuperLearner prediction function for $\mu^1$.
 # Using default ML algorithm choices
@@ -43,7 +47,7 @@ glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
 glm_reg_0 <- glm_reg_1
 
 
-times <- unique(round(logseq(start_time, 10000, n = 30)))
+times <- unique(round(logseq(start_time, n, n = 30)))
 alpha <- 0.1
 n_cores <- detectCores()
 
@@ -66,7 +70,8 @@ confseq_SL <-
     alpha = alpha,
     times = times,
     n_cores = n_cores,
-    cross_fit = TRUE
+    cross_fit = TRUE,
+    lyapunov = TRUE
   )
 confseq_glm <-
   confseq_ate(
@@ -83,7 +88,8 @@ confseq_glm <-
     alpha = alpha,
     times = times,
     n_cores = n_cores,
-    cross_fit = TRUE
+    cross_fit = TRUE,
+    lyapunov = TRUE
   )
 confseq_unadj <-
   confseq_ate_unadjusted(
@@ -92,15 +98,17 @@ confseq_unadj <-
     propensity_score = 1 / 2,
     t_opt = 1000,
     alpha = alpha,
-    times = times
+    times = times,
+    lyapunov = TRUE
   )
 
-r_data_dir <- "./paper_plots/simulations/randomized_experiment_SL/"
+r_data_dir <- "./paper_plots/simulations/time_varying_ate_randomized/"
 save(
   confseq_SL,
   confseq_glm,
   confseq_unadj,
   times,
-  ATE,
-  file = paste(r_data_dir, 'randomized_experiment_SL.RData', sep = "")
+  ATE_t,
+  ATE_t_tilde,
+  file = paste(r_data_dir, "time_varying_ate_randomized.RData", sep = "")
 )
