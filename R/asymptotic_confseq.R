@@ -37,7 +37,7 @@ best_rho2_exact <- function(t_opt, alpha_opt = 0.05)
   stopifnot(t_opt >= 1)
   stopifnot(alpha_opt > 0 && alpha_opt < sqrt(lambertW0(1)))
 
-  return((-lambertWm1(-alpha_opt ^ 2 * exp(alpha_opt ^ 2 - 1)) - 1) / t_opt)
+  return((-lambertWm1(-alpha_opt ^ 2 * exp(- 1)) - 1) / t_opt)
 }
 
 lambertWm1_approx <- function(x)
@@ -62,7 +62,7 @@ best_rho2_approx <- function(t_opt, alpha_opt = 0.05)
   stopifnot(alpha_opt > 0 && alpha_opt <= sqrt(lambertW0(1)))
 
   return((-lambertWm1_approx(-alpha_opt ^ 2 *
-                               exp(alpha_opt ^ 2 - 1)) - 1) / t_opt)
+                               exp(- 1)) - 1) / t_opt)
 }
 
 #' LIL standard (unit-variance) margin
@@ -78,7 +78,7 @@ std_LIL_margin <- function(t, alpha = 0.05 / 2)
   stopifnot(alpha > 0 && alpha < 1)
 
   return(1.7 *
-           sqrt(log(log(2 * t)) + 0.72 * log(5.2 / alpha)) /
+           sqrt(log(log(2 * t)) + 0.72 * log(10.4 / alpha)) /
            sqrt(t))
 }
 

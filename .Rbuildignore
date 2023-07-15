@@ -3,3 +3,4 @@
 ^\.github$
 ^examples
 ^paper_plots
+^venv_drconfseq

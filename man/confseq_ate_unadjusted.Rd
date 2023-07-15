@@ -10,7 +10,8 @@ confseq_ate_unadjusted(
   t_opt,
   propensity_score = NULL,
   alpha = 0.05,
-  times = NULL
+  times = NULL,
+  lyapunov = FALSE
 )
 }
 \arguments{

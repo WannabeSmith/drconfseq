@@ -16,7 +16,8 @@ confseq_ate(
   alpha = 0.05,
   times = NULL,
   n_cores = 1,
-  cross_fit = TRUE
+  cross_fit = TRUE,
+  lyapunov = FALSE
 )
 }
 \arguments{

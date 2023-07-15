@@ -14,7 +14,8 @@ pseudo_outcome_sequential(
   train_idx = NULL,
   times = NULL,
   n_cores = 1,
-  cross_fit = FALSE
+  cross_fit = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

@@ -18,17 +18,17 @@ library(gridExtra)
 library(purrr)
 library(dplyr)
 library(drconfseq)
+library(latex2exp)
 
-plt_width = 18
-plt_height = 9
+plt_width <- 18
+plt_height <- 9
 global_theme <- theme_classic() +
   theme(axis.line = element_line(colour = "gray"),
         axis.ticks = element_line(colour = "gray"))
 palette <- "Set2"
 alpha <- 0.1
-
-figures_dir = here('paper_plots/figures/')
-simulations_dir = here('paper_plots/simulations')
+figures_dir <- here('paper_plots/figures/')
+simulations_dir <- here('paper_plots/simulations')
 ```
 
 
@@ -43,7 +43,7 @@ n <- as.integer(names(miscoverage_rates)[[1]]) +
   length(miscoverage_rates[[1]]) - 1
 
 plt_data_lines <- as.integer(names(miscoverage_rates)) %>%
-  map(function(start_time){
+  map(function(start_time) {
     df <- data.frame(t = start_time:n,
                      rate = miscoverage_rates[[as.character(start_time)]],
                      start_time = as.factor(start_time))
@@ -79,7 +79,7 @@ t_opts <- c(100, 500, 1000, 5000)
 t <- 100:10000
 shape_points <- seq(min(t), max(t), length.out = 6)
 
-plt_data_lines <- t_opts %>% map(function(t_opt){
+plt_data_lines <- t_opts %>% map(function(t_opt) {
   acs <- std_conjmix_margin(t = t,
                             rho2 = best_rho2_approx(t_opt),
                             alpha=alpha)
@@ -126,7 +126,7 @@ u_acs <- acs$u[start_time:n]
 l_clt <- clt$l[start_time:n]
 u_clt <- clt$u[start_time:n]
 
-t = unique(round(logseq(from = start_time, to = n, n = 10000)))
+t <- unique(round(logseq(from = start_time, to = n, n = 10000)))
 
 plot_df <- data.frame(t = rep(t, 4), 
                       bound = c(l_acs[t - start_time + 1],
@@ -137,7 +137,7 @@ plot_df <- data.frame(t = rep(t, 4),
                                       rep('u', length(t)),
                                       rep('l', length(t)),
                                       rep('u', length(t))),
-                      type = c(rep('CS [Thm 1]', 2*length(t)),
+                      type = c(rep('CS [Thm 2.2]', 2*length(t)),
                                rep('CI [CLT]', 2*length(t))))
 
 plt_cs <- 
@@ -147,9 +147,9 @@ plt_cs <-
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=type, linetype=type), 
             data=plot_df[plot_df$upper_lower=='u',]) +
-  geom_hline(yintercept=p_1 - p_2, linetype='dashed', color='gray') +
+  geom_hline(yintercept=p_1 - p_2, linetype='dashed', color='#3b4252') +
   ylab('Confidence sets for the\naverage treatment effect') + xlab('Time') +
-  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1)) +
+  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 2.2]'), values=c(3, 1)) +
   scale_x_log10(breaks = scales::trans_breaks("log10",
                                               function(x) 10^x),
                 labels = scales::trans_format("log10",
@@ -164,7 +164,7 @@ plt_cs <-
 plot_df <- data.frame(t = rep(t, 2),
                       miscoverage = c(acs_miscoverage[t - start_time + 1],
                                       clt_miscoverage[t - start_time + 1]),
-                      type = c(rep('CS [Thm 1]', 
+                      type = c(rep('CS [Thm 2.2]', 
                                    length(t)),
                                rep('CI [CLT]',
                                    length(t))))
@@ -172,9 +172,9 @@ plot_df <- data.frame(t = rep(t, 2),
 plt_miscoverage <- ggplot(plot_df) + 
   global_theme +
   geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
-  geom_hline(aes(yintercept=alpha), linetype='dashed', color='gray') + 
+  geom_hline(aes(yintercept=alpha), linetype='dotdash', color='#3b4252') + 
   ylab('Cumulative miscoverage rate') + xlab('Time') +
-  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1), name="") +
+  scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 2.2]'), values=c(3, 1), name="") +
   scale_x_log10(breaks = scales::trans_breaks("log10",
                                               function(x) 10^x),
                 labels = scales::trans_format("log10",
@@ -193,7 +193,6 @@ ggsave(here(figures_dir, 'miscoverage.pdf'), plot = plt_both,
 
 # Time-varying distributions
 ```{r}
-library(latex2exp)
 load(here(simulations_dir, 'time_varying/time_varying.RData'))
 
 start_time_plot <- 100
@@ -230,7 +229,7 @@ plt_timevarying <- ggplot() +
   ## geom_line(aes(x = t[t_plot], y = mu, linetype = type), data = mu_plot_df) +
   ylab(TeX("Confidence sequence for $\\widetilde{\\mu}_t$")) +
   xlab(TeX("Time $t$")) +
-  ## scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 1]'), values=c(3, 1)) +
+  ## scale_linetype_manual(breaks=c('CI [CLT]', 'CS [Thm 2.2]'), values=c(3, 1)) +
   ## xlim(100, N) + ylim(0.3, 1.1) +
   scale_x_log10(
     breaks = scales::trans_breaks(
@@ -249,7 +248,7 @@ plt_timevarying <- ggplot() +
     text = element_text(family = "serif")
   ) +
   scale_color_manual(
-    values = c("#a1a1ed", "gray"),
+    values = c("#a1a1ed", "#3b4252"),
     labels = c(
       unname(TeX("$\\widetilde{C}_t$$")),
       unname(TeX("$\\widetilde{\\mu}_t$"))
@@ -271,11 +270,11 @@ ggsave(here(figures_dir, 'CS_wavy.pdf'),
 # Confidence sequences for the average treatment effect
 
 ```{r}
-legend_breaks = c(
-  "Unadjusted", "Parametric", "Super Learner", "ATE_t"
+legend_breaks <- c(
+  "IPW", "AIPW (param)", "AIPW (stack)", "ATE_t"
 )
-color_values = c("#86cfa7", "#a1a1ed", "#f26f87", "darkgray")
-linetype_values = c("dashed", "solid", "dotdash", "dotted")
+color_values <- c("#86cfa7", "#a1a1ed", "#f26f87", "#3b4252")
+linetype_values <- c("dashed", "solid", "dotdash", "dotted")
 ```
 
 ## IID
@@ -289,25 +288,25 @@ load(here(simulations_dir,
      'randomized_experiment_SL/randomized_experiment_SL.RData'))
 
 legend_labels <- c(
-  unname("Unadjusted"),
-  unname("Parametric"),
-  unname("Super Learner"),
+  unname("IPW"),
+  unname("AIPW (param)"),
+  unname("AIPW (stack)"),
   unname(TeX("$\\psi$"))
 )
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
                                 confseq_glm$l, confseq_glm$u,
-                                confseq_unadj$l, confseq_unadj$u),
+                                confseq_ipw$l, confseq_ipw$u),
                       upper_lower = c(rep('l', length(confseq_SL$l)),
                                       rep('u', length(confseq_SL$u)),
                                       rep('l', length(confseq_glm$l)),
                                       rep('u', length(confseq_glm$u)),
-                                      rep('l', length(confseq_unadj$u)),
-                                      rep('u', length(confseq_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
-                               rep('Parametric', 2*length(confseq_glm$l)),
-                               rep('Unadjusted', 2*length(confseq_unadj$l))))
+                                      rep('l', length(confseq_ipw$u)),
+                                      rep('u', length(confseq_ipw$u))),
+                      Model = c(rep('AIPW (stack)', 2*length(confseq_SL$l)),
+                               rep('AIPW (param)', 2*length(confseq_glm$l)),
+                               rep('IPW', 2*length(confseq_ipw$l))))
 
 plt_cs <- 
   ggplot() + 
@@ -351,30 +350,29 @@ plt_cs
 
 ```{r, echo=FALSE}
 library(ggplot2)
-library(latex2exp)
 
 load(here(simulations_dir, 'observational_study_SL/observational_study_SL.RData'))
 
 legend_labels <- c(
-  unname("Unadjusted"),
-  unname("Parametric"),
-  unname("Super Learner"),
+  unname("Diff-in-means"),
+  unname("AIPW (param)"),
+  unname("AIPW (stack)"),
   unname(TeX("$\\psi$"))
 )
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(confseq_SL$l, confseq_SL$u,
                                 confseq_glm$l, confseq_glm$u,
-                                confseq_unadj$l, confseq_unadj$u),
+                                confseq_diff_in_means$l, confseq_diff_in_means$u),
                       upper_lower = c(rep('l', length(confseq_SL$l)),
                                       rep('u', length(confseq_SL$u)),
                                       rep('l', length(confseq_glm$l)),
                                       rep('u', length(confseq_glm$u)),
-                                      rep('l', length(confseq_unadj$u)),
-                                      rep('u', length(confseq_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
-                               rep('Parametric', 2*length(confseq_glm$l)),
-                               rep('Unadjusted', 2*length(confseq_unadj$l))))
+                                      rep('l', length(confseq_diff_in_means$u)),
+                                      rep('u', length(confseq_diff_in_means$u))),
+                      Model = c(rep('AIPW (stack)', 2*length(confseq_SL$l)),
+                               rep('AIPW (param)', 2*length(confseq_glm$l)),
+                               rep('IPW', 2*length(confseq_diff_in_means$l))))
 
 plt_cs <- 
   ggplot() + 
@@ -418,14 +416,13 @@ plt_cs
 
 ```{r}
 library(ggplot2)
-library(latex2exp)
 
 load(here(simulations_dir, "time_varying_ate_randomized/time_varying_ate_randomized.RData"))
 
 legend_labels <- c(
-  unname("Unadjusted"),
-  unname("Parametric"),
-  unname("Super Learner"),
+  unname("IPW"),
+  unname("AIPW (param)"),
+  unname("AIPW (stack)"),
   unname(TeX("$\\widetilde{\\psi}_t$"))
 )
 
@@ -439,15 +436,16 @@ plot_df <- data.frame(t = rep(times, 6),
                                       rep('u', length(confseq_glm$u)),
                                       rep('l', length(confseq_unadj$u)),
                                       rep('u', length(confseq_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(confseq_SL$l)),
-                               rep('Parametric', 2*length(confseq_glm$l)),
-                               rep('Unadjusted', 2*length(confseq_unadj$l))))
+                      Model = c(rep('AIPW (stack)', 2*length(confseq_SL$l)),
+                               rep('AIPW (param)', 2*length(confseq_glm$l)),
+                               rep('IPW', 2*length(confseq_unadj$l))))
 
 ATE_plot_df <- data.frame("time" = times,
                          "ate_t" = ATE_t_tilde[times],
                          "type" = rep("ATE_t", length(times)))
 plt_cs <- 
   ggplot() + 
+  global_theme +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
@@ -467,7 +465,6 @@ plt_cs <-
                 labels = scales::trans_format("log10",
                                               scales::math_format(10^.x))) +
   annotation_logticks(colour = "grey", side = "b") + 
-  theme_fn() + 
   theme(text = element_text(family="serif")) +
   scale_color_manual(
     values = color_values,
@@ -489,14 +486,14 @@ plt_cs
 ## Sepsis example
 
 ```{r}
-sepsis_dir = here('paper_plots/sepsis')
+sepsis_dir <- here('paper_plots/sepsis')
 load(here(sepsis_dir, '/sepsis_cs.RData'))
 
-legend_breaks = c(
-  "Unadjusted", "Parametric", "Super Learner"
+legend_breaks <- c(
+  "Diff-in-means", "AIPW (param)", "AIPW (stack)"
 )
-color_values = c("#86cfa7", "#a1a1ed", "#f26f87")
-linetype_values = c("dashed", "solid", "dotdash")
+color_values <- c("#86cfa7", "#a1a1ed", "#f26f87")
+linetype_values <- c("dashed", "solid", "dotdash")
 
 plot_df <- data.frame(t = rep(times, 6), 
                       bound = c(cs_SL$l, cs_SL$u,
@@ -508,35 +505,337 @@ plot_df <- data.frame(t = rep(times, 6),
                                       rep('u', length(cs_glm$u)),
                                       rep('l', length(cs_unadj$u)),
                                       rep('u', length(cs_unadj$u))),
-                      Model = c(rep('Super Learner', 2*length(cs_SL$l)),
-                               rep('Parametric', 2*length(cs_glm$l)),
-                               rep('Unadjusted', 2*length(cs_unadj$l))))
+                      Model = c(rep('AIPW (stack)', 2*length(cs_SL$l)),
+                               rep('AIPW (param)', 2*length(cs_glm$l)),
+                               rep('Diff-in-means', 2*length(cs_unadj$l))))
 
-plt_cs <- 
+plt_sepsis <- 
   ggplot() + 
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='l',]) +
   geom_line(aes(x=t, y=bound, color=Model, linetype=Model), 
             data=plot_df[plot_df$upper_lower=='u',]) +
   ylab('Estimated effect of high fluid\nintake on 30-day mortality') +
-  xlab('Number of sepsis patients') +
+  xlab('Number of patients') +
   ylim(-0.2, 0.2) +
   xlim(1000, times[length(times)]) +
-  theme_fn() + 
-  theme(text = element_text(family="serif")) +
+  ## theme_fn() + 
+  global_theme +
+  theme(legend.position=c(0.75, 0.85),
+        text = element_text(family="serif")) +
   scale_color_manual(
     values = color_values,
     breaks = legend_breaks,
-    labels = legend_labels, name = ""
+    name = ""
   ) +
   scale_linetype_manual(
     values = linetype_values,
     breaks = legend_breaks,
-    labels = legend_labels, name = ""
+    name = ""
   )
 
-ggsave(here(figures_dir, 'sepsis.pdf'),
-       width=plt_width, height=plt_height, units='cm')
-plt_cs
+## ggsave(here(figures_dir, 'sepsis.pdf'),
+##        width=plt_width, height=plt_height, units='cm')
+## plt_cs
+
+load(here(sepsis_dir, '/fluid_intake_cs.RData'))
+
+
+plot_df <- data.frame(t = times, 
+                      bound = c(cs_fluid_intake$l, cs_fluid_intake$u),
+                      upper_lower = c(rep('l', length(cs_fluid_intake$l)),
+                                      rep('u', length(cs_fluid_intake$u))),
+                      type = rep("AsympCS", 2*length(cs_fluid_intake$l)))
+
+plt_fluid_intake <-
+  ggplot() +
+  geom_line(aes(x=t, y=bound, color="AsympCS", linetype="AsympCS"), 
+            data=plot_df[plot_df$upper_lower=='l',]) +
+  geom_line(aes(x=t, y=bound, color="AsympCS", linetype="AsympCS"),
+            data=plot_df[plot_df$upper_lower=='u',]) +
+  geom_line(aes(x=times, y=muhat_fluid_intake, color="muhat", linetype="muhat")) +
+  ylab("Confidence sequences for\naverage 24h fluid intake") +
+  xlab("Number of patients") +
+  ylim(4, 5.5) +
+  global_theme +
+  scale_color_manual(
+    values = c("#fb8d62", "grey"),
+    labels = c(
+      "AsympCS",
+      unname(TeX("$\\widehat{\\mu}_t$"))
+    ), name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("solid", "dotted"),
+    labels = c(
+      "AsympCS",
+      unname(TeX("$\\widehat{\\mu}_t$"))
+    ), name = ""
+  ) + 
+  theme(legend.position=c(0.75, 0.77),
+        text = element_text(family="serif"))
+
+
+plt_both <- grid.arrange(plt_fluid_intake, plt_sepsis, nrow=1)
+plt_both
+
+ggsave(here(figures_dir, 'sepsis.pdf'), plot = plt_both,
+       width=plt_width+2, height=plt_height-2, units='cm')
+
 ```
 
+## Width and coverage
+
+```{r}
+rdata_files <- list.files(path=here(simulations_dir, "widths_coverage/"), pattern="widths_coverage_(bernoulli|beta)\\.RData")
+
+for (rdata_file in rdata_files) {
+  load(here(simulations_dir, "widths_coverage", rdata_file))
+
+  legend_names <- list("asympcs" = "AsympCS [Thm 2.2]",
+                       "clt" = "CLT CI",
+                       "subGaussian" = "Sub-Gaussian [R70]",
+                       "subexponential" = "Sub-exp'l [HRMS21]")
+
+  t <- unique(round(logseq(from = start_time, to = n, n = 100)))
+
+  plot_df <- data.frame(t = rep(t, 4), 
+                        width = c(acs_width[t],clt_width[t],subGaussian_width[t],subexponential_width[t]),
+                        type = c(rep(legend_names$asympcs, length(t)),
+                                 rep(legend_names$clt, length(t)),
+                                 rep(legend_names$subGaussian, length(t)),
+                                 rep(legend_names$subexponential, length(t))
+                                 ))
+
+  plt_cs_width <- 
+    ggplot() + 
+    global_theme +
+    geom_line(aes(x=t, y=width, color=type, linetype=type), 
+              data=plot_df) +
+    ylab('Width of confidence sets for the mean') + xlab('Time') +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position=c(0.75, 0.82),
+          text = element_text(family="serif")) +
+    scale_color_brewer(palette = palette, name = "") +
+    scale_linetype_manual(breaks=c(legend_names$asympcs, legend_names$clt, legend_names$subexponential, legend_names$subGaussian), values=c("solid", "dashed", "dotdash", "dotted"), name = "")
+  # Miscoverage
+
+  plot_df <- data.frame(t = rep(t, 4),
+                        miscoverage = c(acs_miscoverage[t - start_time + 1],
+                                        clt_miscoverage[t - start_time + 1],
+                                        subGaussian_miscoverage[t - start_time + 1],
+                                        subexponential_miscoverage[t - start_time + 1]),
+                        type = c(rep(legend_names$asympcs, 
+                                     length(t)),
+                                 rep(legend_names$clt,
+                                     length(t)),
+                                 rep(legend_names$subGaussian,
+                                     length(t)),
+                                 rep(legend_names$subexponential,
+                                     length(t))
+                                 ))
+
+  plt_miscoverage <- ggplot(plot_df) + 
+    global_theme +
+    geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
+    geom_hline(aes(yintercept=alpha), linetype='dotdash', color='#3b4252') + 
+    ylab('Cumulative miscoverage rate') + xlab('Time') +
+    scale_linetype_manual(breaks=c(legend_names$asympcs, legend_names$clt, legend_names$subexponential, legend_names$subGaussian), values=c("solid", "dashed", "dotdash", "dotted"), name="") +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position='none',
+          text = element_text(family="serif")
+          ) +
+    scale_color_brewer(palette = palette)
+
+  plt_both <- grid.arrange(plt_cs_width, plt_miscoverage, nrow=1)
+
+  output_file <- here(figures_dir, gsub("RData", "pdf", rdata_file))
+  ggsave(output_file, plot = plt_both,
+         width=plt_width+2, height=plt_height-2, units='cm')
+}
+
+
+```
+
+## Width and coverage (ATE estimation)
+
+```{r}
+
+
+rdata_files <- list.files(path=here(simulations_dir, "widths_coverage/"), pattern="^widths_coverage_ate_.*\\.RData$")
+
+for (rdata_file in rdata_files) {
+  load(here(simulations_dir, "widths_coverage", rdata_file))
+
+  legend_names <- list("asympcs" = "AsympCS [Thm 3.1]",
+                       "clt" = "CLT CI",
+                       "subGaussian" = "Sub-Gaussian [R70]",
+                       "subexponential" = "Sub-exp'l [HRMS21]")
+
+  # The actual times at which to plot the widths / miscoverage
+  t <- unique(round(logseq(from = start_time, to = n, n = 100)))
+
+  # The indices of the times at which to plot the widths / miscoverage
+  t_idx <- t - start_time + 1
+
+
+  plot_df <- data.frame(t = rep(t, 4), 
+                        width = c(acs_width[t_idx],clt_width[t_idx],subGaussian_width[t_idx],subexponential_width[t_idx]),
+                        type = c(rep(legend_names$asympcs, length(t)),
+                                 rep(legend_names$clt, length(t)),
+                                 rep(legend_names$subGaussian, length(t)),
+                                 rep(legend_names$subexponential, length(t))
+                                 ))
+
+  plt_cs_width <- 
+    ggplot() + 
+    global_theme +
+    geom_line(aes(x=t, y=width, color=type, linetype=type), 
+              data=plot_df) +
+    ylab('Confidence sets for the\naverage treatment effect') + xlab('Time') +
+    scale_linetype_manual(breaks=c(legend_names$asympcs, legend_names$clt, legend_names$subexponential, legend_names$subGaussian), values=c("solid", "dashed", "dotdash", "dotted"), name="") +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position=c(0.75, 0.86),
+          text = element_text(family="serif")) +
+    scale_color_brewer(palette = palette, name="")
+  # Miscoverage
+
+  plot_df <- data.frame(t = rep(t, 4),
+                        miscoverage = c(acs_miscoverage[t_idx],
+                                        clt_miscoverage[t_idx],
+                                        subGaussian_miscoverage[t_idx],
+                                        subexponential_miscoverage[t_idx]),
+                        type = c(rep(legend_names$asympcs, length(t)),
+                                 rep(legend_names$clt, length(t)),
+                                 rep(legend_names$subGaussian, length(t)),
+                                 rep(legend_names$subexponential, length(t))
+                                 ))
+
+  plt_miscoverage <- ggplot(plot_df) + 
+    global_theme +
+    geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
+    geom_hline(aes(yintercept=alpha), linetype='solid', color='gray') + 
+    ylab('Cumulative miscoverage rate') + xlab('Time') +
+    scale_linetype_manual(breaks=c(legend_names$asympcs, legend_names$clt, legend_names$subexponential, legend_names$subGaussian), values=c("solid", "dashed", "dotdash", "dotted"), name="") +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position='none',
+          text = element_text(family="serif")
+          ) +
+    scale_color_brewer(palette = palette, name="")
+
+  plt_both <- grid.arrange(plt_cs_width, plt_miscoverage, nrow=1)
+
+  output_file <- here(figures_dir, gsub("RData", "pdf", rdata_file))
+  ggsave(output_file, plot = plt_both,
+         width=plt_width+2, height=plt_height-2, units='cm')
+}
+
+
+```
+
+```{r}
+rdata_files <- list.files(path=here(simulations_dir, "group_sequential/"), pattern="^grpseq_widths_.*\\.RData$")
+
+for (rdata_file in rdata_files) {
+  load(here(simulations_dir, "group_sequential", rdata_file))
+
+  legend_names <- list("asympcs" = "AsympCS [Thm 3.1]",
+                       "clt" = "CLT CI",
+                       "pocock" = "Grp-seq [P 77]",
+                       "obrien_fleming" = "Grp-seq [OF 79]")
+
+  start_time <- times[1]
+  n = times[length(times)]
+  
+  # The actual times at which to plot the widths / miscoverage
+  t <- unique(round(logseq(from = start_time, to = n, n = 100)))
+
+  # The indices of the times at which to plot the widths / miscoverage
+  t_idx <- t - start_time + 1
+
+
+  plot_df <- data.frame(t = rep(t, length(legend_names)), 
+                        width = c(acs_width[t_idx],
+                                  clt_width[t_idx],
+                                  pocock_width[t_idx],
+                                  obrien_fleming_width[t_idx]),
+                        type = c(rep(legend_names$asympcs, length(t)),
+                                 rep(legend_names$clt, length(t)),
+                                 rep(legend_names$pocock, length(t)),
+                                 rep(legend_names$obrien_fleming, length(t))))
+
+  plt_cs_width <- 
+    ggplot() + 
+    global_theme +
+    geom_line(aes(x=t, y=width, color=type, linetype=type), 
+              data=plot_df) +
+    ylab('Confidence sets for the\naverage treatment effect') + xlab('Time') +
+    scale_linetype_manual(breaks=c(legend_names$asympcs,
+                                   legend_names$clt,
+                                   legend_names$obrien_fleming,
+                                   legend_names$pocock),
+                          values=c("solid", "dashed", "dotdash", "dotted"), name="") +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position=c(0.75, 0.82),
+          text = element_text(family="serif")) +
+    scale_color_brewer(palette = palette, name="")
+
+  # Miscoverage
+
+  plot_df <- data.frame(t = rep(t, length(legend_names)),
+                        miscoverage = c(acs_miscoverage[t_idx],
+                                        clt_miscoverage[t_idx],
+                                        pocock_miscoverage[t_idx],
+                                        obrien_fleming_miscoverage[t_idx]),
+                        type = c(rep(legend_names$asympcs, length(t)),
+                                 rep(legend_names$clt, length(t)),
+                                 rep(legend_names$pocock, length(t)),
+                                 rep(legend_names$obrien_fleming, length(t))))
+
+  plt_miscoverage <- ggplot(plot_df) + 
+    global_theme +
+    geom_line(aes(x=t, y=miscoverage, color=type, linetype=type)) +
+    geom_hline(aes(yintercept=alpha), linetype='solid', color='gray') + 
+    ylab('Cumulative miscoverage rate') + xlab('Time') +
+    scale_linetype_manual(breaks=c(legend_names$asympcs,
+                                   legend_names$clt,
+                                   legend_names$pocock,
+                                   legend_names$obrien_fleming),
+                          values=c("solid", "dashed", "dotdash", "dotted"), name="") +
+    scale_x_log10(breaks = scales::trans_breaks("log10",
+                                                function(x) 10^x),
+                  labels = scales::trans_format("log10",
+                                                scales::math_format(10^.x))) +
+    annotation_logticks(colour = "grey", side = "b") +
+    theme(legend.position='none',
+          text = element_text(family="serif")
+          ) +
+    scale_color_brewer(palette = palette, name="")
+
+  plt_both <- grid.arrange(plt_cs_width, plt_miscoverage, nrow=1)
+
+  output_file <- here(figures_dir, gsub("RData", "pdf", rdata_file))
+  ggsave(output_file, plot = plt_both,
+         width=plt_width+2, height=plt_height-2, units='cm')
+}
+```

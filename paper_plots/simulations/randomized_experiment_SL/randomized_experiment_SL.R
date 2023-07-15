@@ -4,23 +4,26 @@ library(dtplyr)
 library(dplyr, warn.conflicts = FALSE)
 
 ATE <- 1
-n = 10000
+n <- 10000
 start_time <- 500
-d = 3
+d <- 3
 X_mtx <- cbind(1, matrix(rnorm(n * d), nrow = n))
 X_data <- X_mtx %>%
   as.data.frame() %>%
   mutate(V1 = NULL)
 
-beta_mu <- c(1,-1,-2, 3)
+t_opt <- 1000
 
-reg_true <- function(x)
-{
-  beta_mu %*% c(x[1], x[2] ^ 2, sin(x[3]), abs(x[4]))
+beta_mu <- c(1, -1, -2, 3)
+
+prop_score_numeric <- 1 / 2
+
+reg_true <- function(x) {
+  beta_mu %*% c(x[1], x[2]^2, sin(x[3]), abs(x[4]))
 }
 
 prop_score_true <- function(x) {
-  1 / 2
+  prop_score_numeric
 }
 
 reg_observed <- apply(X_mtx, MARGIN = 1, FUN = reg_true)
@@ -39,7 +42,7 @@ sl_reg_0 <- sl_reg_1
 pi_fn <- get_SL_fn(family = binomial)
 
 # Get GLM superlearner
-glm_reg_1 = get_SL_fn(SL.library = "SL.glm")
+glm_reg_1 <- get_SL_fn(SL.library = "SL.glm")
 glm_reg_0 <- glm_reg_1
 
 
@@ -59,15 +62,16 @@ confseq_SL <-
     regression_fn_1 = sl_reg_1,
     regression_fn_0 = sl_reg_0,
     propensity_score_fn = function(y, X, newX) {
-      1 / 2
+      prop_score_numeric
     },
     train_idx = train_idx,
-    t_opt = 1000,
+    t_opt = t_opt,
     alpha = alpha,
     times = times,
     n_cores = n_cores,
     cross_fit = TRUE
   )
+
 confseq_glm <-
   confseq_ate(
     y,
@@ -76,31 +80,41 @@ confseq_glm <-
     regression_fn_1 = glm_reg_1,
     regression_fn_0 = glm_reg_0,
     propensity_score_fn = function(y, X, newX) {
-      1 / 2
+      prop_score_numeric
     },
     train_idx = train_idx,
-    t_opt = 1000,
+    t_opt = t_opt,
     alpha = alpha,
     times = times,
     n_cores = n_cores,
     cross_fit = TRUE
   )
-confseq_unadj <-
-  confseq_ate_unadjusted(
-    y = y,
-    treatment = treatment,
-    propensity_score = 1 / 2,
-    t_opt = 1000,
-    alpha = alpha,
-    times = times
+
+confseq_ipw <-
+  asymptotic_confseq(
+    y * treatment / prop_score_numeric -
+      y * (1 - treatment) / (1 - prop_score_numeric),
+    t_opt = t_opt,
+    alpha = alpha
   )
 
-r_data_dir <- "./paper_plots/simulations/randomized_experiment_SL/"
+confseq_ipw$l <- confseq_ipw$l[times]
+confseq_ipw$u <- confseq_ipw$u[times]
+## confseq_ate_unadjusted(
+##   y = y,
+##   treatment = treatment,
+##   propensity_score = 1 / 2,
+##   t_opt = 1000,
+##   alpha = alpha,
+##   times = times
+## )
+
+r_data_dir <- "./"
 save(
   confseq_SL,
   confseq_glm,
-  confseq_unadj,
+  confseq_ipw,
   times,
   ATE,
-  file = paste(r_data_dir, 'randomized_experiment_SL.RData', sep = "")
+  file = paste(r_data_dir, "randomized_experiment_SL.RData", sep = "")
 )

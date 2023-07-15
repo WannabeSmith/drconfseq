@@ -81,7 +81,8 @@ pseudo_outcome_sequential <- function(y,
                                       train_idx = NULL,
                                       times = NULL,
                                       n_cores = 1,
-                                      cross_fit = FALSE)
+                                      cross_fit = FALSE,
+                                      verbose = FALSE)
 {
   if (is.null(regression_fn_0))
     regression_fn_0 <- regression_fn_1
@@ -112,7 +113,10 @@ pseudo_outcome_sequential <- function(y,
     # necessary for when the user wishes to perform cross-fitting.
     # See above if/else statement.
 
-    print(paste("Fitting nuisance functions at time", time))
+    if (verbose) {
+      print(paste("Fitting nuisance functions at time", time))
+    }
+    
 
     unlist(lapply(train_indices, function(train_idx) {
       train_idx_t <- train_idx == TRUE

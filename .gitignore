@@ -1,3 +1,10 @@
+# Virtual environments
+venv_drconfseq
+
+# Emacs backup files
+*~
+
+
 # Dataset
 **.csv
 
