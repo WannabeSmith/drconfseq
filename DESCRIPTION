@@ -10,6 +10,7 @@ Depends:
   R (>= 3.5.0),
   SuperLearner
 Imports:
+  reticulate,
   stats,
   parallel,
   ggplot2,
